@@ -29,26 +29,26 @@
 import math
 import numpy as np
 
-def horizon(x, y, z, dx, dy, anga, zhoriz, d):
+def horizon(x, y, z, dx, dy, anga):
 
 # Variables:
 
     width = 512
     altsol = np.zeros((width, width))       # matrice de 512x512 --> vérifier quoi à l'intérieur ?
-    andaz1 = anga
-    ix = (math.cos(angaz1))                 # vérifier comment angaz1 est défini ?
+    angaz1 = anga                           # angaz1 = (pi*anga)/180.  ?
+    ix = (math.cos(angaz1))
     iy = (math.sin(angaz1))
-    dist = width * math.sqrt(1 + math.tan(angaz1)**2)
-    scalef = dx/3
-    posx = x * dx
-    posy = y * dy
+    dist = width * math.sqrt(1. + math.tan(angaz1)**2.)
+    scalef = dx/3.
+    posx = x * dx       # dx -> taille du pixel en x
+    posy = y * dy       # dy -> taille du pixel en y
     zhoriz = math.pi
 
 
     while (((posx <= (width * dx) and (posx > dx)) and ((posy <= (width * dy)) and (posy > dx)):
 
-        posx = posx + ix + scalef
-        posy = posy + iy + scalef
+        posx = posx + ix * scalef
+        posy = posy + iy * scalef
         nx = round(posx/dx)
         ny = round(posy/dy)
 
@@ -58,10 +58,10 @@ def horizon(x, y, z, dx, dy, anga, zhoriz, d):
             d = sqrt(dx**2 * (nx-x)**2 + dy**2 *(ny-y)**2)
 
         else:
-            zout = (math.pi/2) -0.5 *pi/180          # c'est quoi les points après les chiffres dans fortran?
+            zout = (math.pi/2) - 0.5 * math.pi/180
             d = (width)*dx                          # bug for zhoriz=pi, anyway in the real world pi is almost impossible
 
         if (zout < zhoriz):
             zhoriz = zout
 
-return zhoriz, d        # vérifier quoi retourner
+return zhoriz, d

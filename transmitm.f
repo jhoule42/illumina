@@ -9,12 +9,12 @@ c Recoit des longueurs d'ondes en nanometre et les transforme en microns.
 c La pressi doit etre en KPa
 c Retourne la transmittance transm
 c
-c  *** J'ai valide le calcul zenith tout atm avec modtran et 
+c  *** J'ai valide le calcul zenith tout atm avec modtran et
 c      cela concorde M. Aubé mars 2010
 c
-c pour utilisation avec Illumina 
+c pour utilisation avec Illumina
 c-----------------------------------------------------------------------
-c   
+c
 c    Copyright (C) 2009  Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -34,7 +34,7 @@ c    Contact: martin.aube@cegepsherbrooke.qc.ca
 c
 c
       subroutine transmitm(angz,z_i,z_f,distd,transm,tranam)
-      real transm,transm1,transm2                                                         ! Declaration des variables.
+      real transm                                                         ! Declaration des variables.
       real tranam                                                         ! vertical transmittance of the complete atmosphere (molecules)
       real angz
       real distd
@@ -46,11 +46,11 @@ c
         z1=z_i
         z2=z_f
       endif
-      if (z1.ne.z2) then    
+      if (z1.ne.z2) then
         transm=exp((log(tranam)/abs(cos(angz)))*(exp(-1.*z1/8000.)-
      +  exp(-1.*z2/8000.)))
       else
-        transm=exp((log(tranam))*exp(-1.*z1/8000.)*distd)  
+        transm=exp((log(tranam))*exp(-1.*z1/8000.)*distd)
       endif
       if ((transm.lt.0.).or.(transm.gt.1.)) then
         print*,'ERREUR avec transm',transm,tranam,

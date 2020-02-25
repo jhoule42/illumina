@@ -51,6 +51,9 @@ def anglezenithal(x1, y1, z1, x2, y2, z2):
         angzen = math.pi / 2.
 
     if ((angzen < 0) or (angzen > math.pi)):       # pourquoi?
-        print("ERREUR angzen2=", angzen)           # vérifier ce que fait print*
+        print("ERREUR angzen2=", angzen)
 
 return angzen
+
+
+#angle à partir du zénith (le haut)

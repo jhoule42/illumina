@@ -36,6 +36,10 @@
 
 ======================================================================="""
 
+# transmitance des molécules
+# transtoa on le calcul une fois
+# pour les deux autres on les call pour chaque trajet (transmita, transmitm)
+
 import math
 
 def transmitm(angz,z_i,z_f,distd,transm,tranam):
@@ -48,13 +52,13 @@ def transmitm(angz,z_i,z_f,distd,transm,tranam):
         z1 = z_i
         z2 = z_f
 
-    if (z1 != z2):                                                                # vérifier signe - + dans .f
+    if (z1 != z2):
         transm = math.exp((math.log(tranam) / abs(math.cos(angz)))*(math.exp(-1. * z1/8000.) - exp(-1. *z2/8000.)))
 
     else:
         transm = math.exp((math.log(tranam)) * math.exp(-1. * z1/8000.) * distd)
 
     if ((transm < 0.) or (transm > 1)):
-        print("ERREUR avec transm", transm, tranam, z_f, z_i, distd, angz, airm)     # vérifier print*
+        print("ERREUR avec transm", transm, tranam, z_f, z_i, distd, angz)
 
-# return    vérifier quoi retourner --> pas clair
+# return tran

@@ -59,6 +59,9 @@ def angleazimutal(x1, y1, x2, y2):
                 angazi = 3.*math.pi/2
 
         if ((angazi < 0.) or (angazi > 2.*math.pi)):
-            print("'ERREUR angazi = ", angazi, x1, y2, x2, y2)      # vérifier print*
+            print("'ERREUR angazi = ", angazi, x1, y2, x2, y2)
 
 return angazi
+
+
+# rotation selon le plan surface rotation de y

@@ -1,7 +1,4 @@
-""" **      http://cegepsherbrooke.qc.ca/~aubema/index.php/Prof/IllumEn?action=download&upname=intensite_lumineuse.pdf  **
- **                                                                                                                  **
-
-================================================================================
+"""================================================================================
     Copyright (C) 2015 Martin Aube
 
     This program is free software: you can redistribute it and/or modify
@@ -19,45 +16,51 @@
 
     Contact: martin.aube@cegepsherbrooke.qc.ca
 
+ **      http://cegepsherbrooke.qc.ca/~aubema/index.php/Prof/IllumEn?action=download&upname=intensite_lumineuse.pdf  **
+
+================================================================================
+
+Statut : Vérifier fonctionnement
 
 ================================================================================"""
 
-#  fitted parameters for the cloud reflectance as a function of the incident zenith angle
-#  rho(z)=a0+a1*cos z + a2 * cos^2 z + a3 * cos^3 z according to Shapiro 1982 Table 10
+#--------------------------------------
+# Types de nuages:                     |
+#1 : thin Cirrus/Cirrostratus          |
+#2 : thick Thick Cirrus/Cirrostratus   |
+#3 : Altostratus/Altocumulus           |
+#4 : Stratotcumuls & Stratus           |
+#5 : Cumulus ou Cumulonimbus           |
+#--------------------------------------
 
+#   fitted parameters for the cloud reflectance as a function of the incident zenith angle
+#   rho(z)=a0+a1*cos z + a2 * cos^2 z + a3 * cos^3 z according to Shapiro 1982 Table 10
 
+def cloudreflectance(angzen, cloudt):
 
-def cloudreflectance(angzen):       # en fortran les indices commence à 1 -->  vérifier que ça ne fait pas d'Erreur
+# (type de nuages, coefficiant de la formule)
+    rhocld = np.zeros((5, 4))
 
-# gauche(type de nuage) droite(coefficiant de la formule)
+    rhocld[0,0]=0.25674
+    rhocld[0,1]=-0.18077
+    rhocld[0,2]=-0.21961
+    rhocld[0,3]=0.252724
+    rhocld[1,0]=0.60540
+    rhocld[1,1]=-0.55142
+    rhocld[1,2]=-0.23389
+    rhocld[1,3]=0.43648
+    rhocld[2,0]=0.66152
+    rhocld[2,1]=-0.14863
+    rhocld[2,2]=-0.08193
+    rhocld[2,3]=0.13442
+    rhocld[3,0]=0.71214
+    rhocld[3,1]=-0.15033
+    rhocld[3,2]=0.00696
+    rhocld[3,3]=0.03904
+    rhocld[4,0]=0.67072
+    rhocld[4,1]=-0.13805
+    rhocld[4,2]=-0.10895
+    rhocld[4,3]=0.09460
 
-# Types de nuages:
-#1 : thin Cirrus/Cirrostratus
-#2 : thick Thick Cirrus/Cirrostratus
-#3 : Altostratus/Altocumulus
-#4 : Stratotcumuls & Stratus
-#5 : Cumulus ou Cumulonimbus
-
-    rhocld(1,1)=0.25674
-    rhocld(1,2)=-0.18077
-    rhocld(1,3)=-0.21961
-    rhocld(1,4)=0.25272
-    rhocld(2,1)=0.60540
-    rhocld(2,2)=-0.55142
-    rhocld(2,3)=-0.23389
-    rhocld(2,4)=0.43648
-    rhocld(3,1)=0.66152
-    rhocld(3,2)=-0.14863
-    rhocld(3,3)=-0.08193
-    rhocld(3,4)=0.13442
-    rhocld(4,1)=0.71214
-    rhocld(4,2)=-0.15033
-    rhocld(4,3)=0.00696
-    rhocld(4,4)=0.03904
-    rhocld(5,1)=0.67072
-    rhocld(5,2)=-0.13805
-    rhocld(5,3)=-0.10895
-    rhocld(5,4)=0.09460
-
-    rcloud = rhocld(cloudt,1) + rhocld(cloudt,2)*cos(angzen) + rhocld(cloudt,3)*(cos(angzen))**2.+rhocld(cloudt,4)*(cos(angzen))**3.
+    rcloud = rhocld[cloudt,0] + rhocld[cloudt,1]*cos(angzen) + rhocld[cloudt,2]*(cos(angzen))**2.+rhocld[cloudt,3]*(cos(angzen))**3.
     print("rcloud: ", rcloud, "angzen: ", angzen, "cos(angzen)", math.cos(angzen))

@@ -34,7 +34,6 @@
 
 import math
 
-# C'est quoi tous les scripts .f qui ne sont pas utilisé dans illumina.f ?
 
 def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, pdif, altit):
 
@@ -71,20 +70,16 @@ def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, pdif, altit):
 
 
       if (prob_a > 1.):
-         print("prob_a>1.")
-         break #à voir
+         raise ValueError("a > 1")
 
       if (prob_a < 0.):
-         print("prob_a<0..")
-         break #à voir
+         raise ValueError("a < 0")
 
       if (prob_m > 1.):
-         print("prob_m>1.")
-         break #à voir
+         raise ValueError("m > 1")
 
       if (prob_m < 0.):
-         print("prob_m <0..")       # caractères étranges
-         break #à voir
+         raise ValueError("m < 0")       # caractères étranges
 
       if (pdif > 1.):
          print("prob > 1", pdif,prob_a,prob_m,tranaa,tranam,altit,distd,omega,omega*prob_a)

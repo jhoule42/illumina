@@ -51,7 +51,7 @@ def angle3points(x1,y1,z1,x2,y2,z2,x3,y3,z3):
         print("Erreur vecteur de sortie nul")
         print(x1,y1,z1,x2,y2,z2,x3,y3,z3)
         break       # ou sys.exit(0) ?
-                                                        # regarder c'est quoi le "a" dans le .f
+
     argume = ((xu*xv) + (yu*yv) + (zu*zv)) / (math.sqrt(xu**2.+ yu**2.+ zu**2.)* sqrt(xv**2.+yv**2.+zv**2.))
 
     if (argume > 1):

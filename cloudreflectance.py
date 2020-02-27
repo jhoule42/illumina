@@ -36,6 +36,8 @@ Statut : Vérifier fonctionnement
 #   fitted parameters for the cloud reflectance as a function of the incident zenith angle
 #   rho(z)=a0+a1*cos z + a2 * cos^2 z + a3 * cos^3 z according to Shapiro 1982 Table 10
 
+import numpy as np
+
 def cloudreflectance(angzen, cloudt):
 
 # (type de nuages, coefficiant de la formule)

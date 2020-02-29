@@ -32,18 +32,20 @@
 ======================================================================="""
 
 import numpy as np
-import math
+from math import sqrt, pi
 
-def zone_diffusion(x1, y1, z1, x2, y2, z2):
+def zone_diffusion(x1, y1, z1, x2, y2, z2, effet, alts, cloudbase, siz):       # erreur step pas utilisé + vérifier ncell
 
     zondif = np.zeros((3000000, 3))     # pk une matrice de cette grandeur ?
 
     neffet = round(effet/siz)   # arrondir à combien ?
     dmin = math.sqrt((x1-x2)**2.+(y1-y2)**2.+(z1-z2)**2.)
 
-#       find an approximate value to stepdi
-#       stepdi=nint((dmin+effet)*3.14159/siz)*neffet/n2nd*neffet/2
-    stepdi = 90000000
+#    find an approximate value to stepdi
+#    stepdi = 90000000
+
+    stepdi=round((dmin+effet)* pi/siz) * neffet/n2nd*neffet/2      # importé fromnumeric pour round?
+
     if (stepdi = 0):
         stepdi=1
 
@@ -73,10 +75,29 @@ def zone_diffusion(x1, y1, z1, x2, y2, z2):
         jmax = y_1 + neffet
 
     kmax=z_2+neffet
-    if (z2 > cloudbase):            # que représente cloudbase --> pas déclaré en haut
+    if (z2 > cloudbase):            # que représente cloudbase? --> pas déclaré en haut
         kmax = round(cloudbase/siz)
 
-    ncell = 0
+    ncell = 0       # 10 dans le .f?
     keep = 0
 
-    
+
+    for i in range(imin, imax, step):
+        for j in range(jmin, jmax, step):
+            for k in range(1, kmax, step):
+                x0 = i*siz
+                y0 = j*six      # pourquoi écrire real? --> redéfinition des int ?
+                z0 = k*siz
+                d1 = sqrt((x1-x0)**2.+(y1-y0)**2.+(z1-z0)**2.)
+                d2 = sqrt((x2-x0)**2.+(y2-y0)**2.+(z2-z0)**2.)
+                d = d1+d2
+
+                if ((z0. > alts) and (z0 < 35000.)):
+                    if (d < dmin+2. *effet):
+                        ncell += 1
+                        zondif(ncell,1) = x0      # vérifier syntaxe numpy
+                        zondif(ncell,2) = y0
+                        zondif(ncell,3) = z0
+    stepdi=step**3
+
+return zondif, stepdi,

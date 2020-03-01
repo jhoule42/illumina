@@ -23,7 +23,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Contact: martin.aube@cegepsherbrooke.qc.ca
------------------------------------------------------------------------""""
+-----------------------------------------------------------------------
+
+# Statut : Comparer avec .f
+
+-----------------------------------------------------------------------"""
 
 
 import math
@@ -34,8 +38,10 @@ def horizon(x, y, z, dx, dy, anga):
 # Variables:
 
     width = 512
-    altsol = np.zeros((width, width))       # matrice de 512x512 --> vérifier quoi à l'intérieur ?
-    angaz1 = anga                           # angaz1 = (pi*anga)/180.  ?
+    altsol = np.zeros((width, width))       # altsol est défini dans illumina.py
+    # est ce que si je modifie la valeur de altsol dans illumina.py ça change la valeur dans la fonction?
+
+    angaz1 = anga                           # utiliser angaz1 = (pi*anga)/180.  ?
     ix = (math.cos(angaz1))
     iy = (math.sin(angaz1))
     dist = width * math.sqrt(1. + math.tan(angaz1)**2.)
@@ -45,23 +51,25 @@ def horizon(x, y, z, dx, dy, anga):
     zhoriz = math.pi
 
 
-    while (((posx <= (width * dx) and (posx > dx)) and ((posy <= (width * dy)) and (posy > dx)):
+    while ((posx <= (width * dx) and (posx > dx)) and (posy <= (width * dy) and (posy > dx))):
 
         posx = posx + ix * scalef
         posy = posy + iy * scalef
-        nx = round(posx/dx)
-        ny = round(posy/dy)
+        nx = round(posx/dx)     # position en x sur la matrice?
+        ny = round(posy/dy)     # position en y sur la matrice?
 
-        if (altsol(nx, ny) > z):    # la matrice altsol n'a pas déja été défini ???
-
+        if (altsol[nx, ny] > z):    # comparer éléments nx, ny de la matrice?
             zout = (math.pi/2) - (math.atan((altsol(nx, ny)-z)/sqrt(dx**2 * ((nx-x))**2 + dy**2 *(ny-y)**2)))
             d = sqrt(dx**2 * (nx-x)**2 + dy**2 *(ny-y)**2)
 
         else:
             zout = (math.pi/2) - 0.5 * math.pi/180
-            d = (width)*dx                          # bug for zhoriz=pi, anyway in the real world pi is almost impossible
+            d = (width)*dx
 
-        if (zout < zhoriz):
+        if (zout < zhoriz):                 # zout vs zhoriz signification?
             zhoriz = zout
 
-return zhoriz, d
+    return zhoriz, d, zout    # retourner zout ?
+
+
+print(horizon(100, 55, 5, 20, 25, 3))   # ERREUR: changer les valeurs des paramètres ne change pas la valeur

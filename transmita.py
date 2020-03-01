@@ -33,9 +33,37 @@
 
  =======================================================================
 
- ** Demander explications Martin
+** Fonctionnel --> comparer à .f
 
  ======================================================================="""
 
 
 # transmitance des aérosols
+
+from math import  exp, log, cos
+
+def transmita(angz, z_i, z_f, distd, tranaa):
+
+    if (z_i > z_f):
+        z2 = z_i
+        z1 = z_f
+
+    else:
+        z1 = z_i
+        z2 = z_f
+
+    if (z1 != z2):
+        transa = exp((log(tranaa)/abs(cos(angz)))*(exp(-1.*z1/2000.)-exp(-1.*z2/2000.)))
+    else:
+        transa=exp((log(tranaa))*exp(-1.*z1/2000.)*distd)
+
+    if (transa == 0):
+        print("ERREUR transa - no transmission", z_i, z_f, angz)
+
+    if (transa > 1):
+        print("ERREUR avec transa", transa, z_i, z_f, angz)
+
+    return transa
+
+
+print(transmita(3.71, 12, 14, 121.2, 0.9))

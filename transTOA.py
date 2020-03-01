@@ -1,6 +1,6 @@
- """===================================================================
+"""===================================================================
  Calculation of the total vertical transmittance of the atmosphere
- (aerosols and molecules separately
+ (aerosols and molecules separately)
 
  pour utilisation avec Illumina
 -----------------------------------------------------------------------
@@ -23,18 +23,21 @@
     Contact: martin.aube@cegepsherbrooke.qc.ca
 -----------------------------------------------------------------------
 
-Statut: À vérifier
+Statut: Fonctionnel --> comparer à .f
 
------------------------------------------------------------------------""""
+-----------------------------------------------------------------------"""
 
+from math import exp
 
 def transtoa(lambm, taua, pressi):
 
     m = (pressi/101.3)  # masse d'air
 
-    #  transmittance tiree de Kneizys et al. (1980)
-    # trop de parenthèses dans verion O.G
+    #  transmittance tirée de Kneizys et al. (1980)
     tranam = exp(-1. * m/(((lambm/1000.)**4.) * (115.6406-(lambm/1000.)**2.)))  # molecules
     tranaa=exp(-1.*taua)  # aerosols
 
-return tranam, tranaa
+    return tranam, tranaa
+
+
+# print(transtoa(100, 32, 101.3))

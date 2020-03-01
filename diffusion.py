@@ -33,62 +33,63 @@
 
 
 import math
+from math import pi
 
 
-def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, pdif, altit):
+def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
 
-"""--------------------------------------------------------
-   Calcul et normalisation des fonctions de diffusion
--------------------------------------------------------- """
+#--------------------------------------------------------
+#  Calcul et normalisation des fonctions de diffusion
+#--------------------------------------------------------
 
     if (angdif < 0.):
         angdif = -angdif   # c'est * -1 ?
-    if (angdiff - math.pi() > 0,00001):
-        angdif = math.pi()
-    angdeg = ((angdif*180.)/math.pi())
+    if (angdif - pi > 0.00001):
+        angdif = pi
+    angdeg = ((angdif*180.)/pi)
     rang = angdeg + 1
 
-"""=======================================================================
-        Calcul de la fonction d'emission de la source vers la cible
-======================================================================="""
+#=======================================================================
+#        Calcul de la fonction d'emission de la source vers la cible
+#=======================================================================
 
     fonc_ae = fonc_a(rang)       # fonc_ae est une liste de 181 éléments ?
     fctmol = 0.75 * (1.+((math.cos()(angdif))**2.)) / (4.*pi)
 
-"""--------------------------------------------------------------------
-  Calcul des probabilites de diffusion par unite d'angle solide
------------------------------------------------------------------------  """
+#--------------------------------------------------------------------
+#  Calcul des probabilites de diffusion par unite d'angle solide
+#-----------------------------------------------------------------------
 
 # Les fonctions utilisees ici sont deja normalisees
-      prob_a = (1.-exp(log(tranaa) * exp(-1.*altit/2000.) * un/2000.))*secdif * fonc_ae
-      prob_m=(1.-exp(log(tranam)*exp(-1.*altit/8000.)*un/8000.))* fctmol
+    prob_a = (1.-exp(log(tranaa) * exp(-1.*altit/2000.) * un/2000.))*secdif * fonc_ae
+    prob_m=(1.-exp(log(tranam)*exp(-1.*altit/8000.)*un/8000.))* fctmol
 
     # Fonc_ae normalisee dans le MAIN, fctmol dans la routine (voir la division par 4 pi)
 
 
-      pdif = prob_a+prob_m                  # Ce calcul est approximatif et bon seulement si 1-transa et  1-transm sont tres petits.
+    pdif = prob_a+prob_m                  # Ce calcul est approximatif et bon seulement si 1-transa et  1-transm sont tres petits.
 
 
-      if (prob_a > 1.):
-         raise ValueError("a > 1")
+    if (prob_a > 1.):
+        raise ValueError("a > 1")
 
-      if (prob_a < 0.):
-         raise ValueError("a < 0")
+    if (prob_a < 0.):
+        raise ValueError("a < 0")
 
-      if (prob_m > 1.):
-         raise ValueError("m > 1")
+    if (prob_m > 1.):
+        raise ValueError("m > 1")
 
-      if (prob_m < 0.):
-         raise ValueError("m < 0")       # caractères étranges
+    if (prob_m < 0.):
+        raise ValueError("m < 0")       # caractères étranges dans .f
 
-      if (pdif > 1.):
-         print("prob > 1", pdif,prob_a,prob_m,tranaa,tranam,altit,distd,omega,omega*prob_a)
-         break #à voir
+    if (pdif > 1.):
+        raise ValueError("pdif > 1")
 
-      if (pdif < 0.):
-         print("prob<0." ,pdif,prob_a,prob_m)
-         break #à voir
+    if (pdif < 0.):
+        raise ValueError("pdif < 0")
 
-      # vérifier le commentaire
+    # vérifier le commentaire dans .f
 
-return pdif
+    return pdif
+
+print(diffusion(1, 0.32, 0.12, 1,32, 5, 2))

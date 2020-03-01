@@ -32,7 +32,7 @@
 
 =======================================================================
 
-** Demander explications Martin
+Statut : Fonctionnel --> comparer à .f
 
 ======================================================================="""
 
@@ -42,9 +42,9 @@
 
 import math
 
-def transmitm(angz,z_i,z_f,distd,transm,tranam):
+def transmitm(angz, z_i, z_f, distd, tranam):
 
-    if (z_i > z_f):         # Vérifier code fortran, car certaine variables ne semble pas être utilisé
+    if (z_i > z_f):
         z2 = z_1
         z1 = z_f
 
@@ -53,7 +53,7 @@ def transmitm(angz,z_i,z_f,distd,transm,tranam):
         z2 = z_f
 
     if (z1 != z2):
-        transm = math.exp((math.log(tranam) / abs(math.cos(angz)))*(math.exp(-1. * z1/8000.) - exp(-1. *z2/8000.)))
+        transm = math.exp((math.log(tranam) / abs(math.cos(angz)))*(math.exp(-1. * z1/8000.) - math.exp(-1. *z2/8000.)))
 
     else:
         transm = math.exp((math.log(tranam)) * math.exp(-1. * z1/8000.) * distd)
@@ -61,4 +61,6 @@ def transmitm(angz,z_i,z_f,distd,transm,tranam):
     if ((transm < 0.) or (transm > 1)):
         print("ERREUR avec transm", transm, tranam, z_f, z_i, distd, angz)
 
-# return tran
+    return transm
+
+#print(transmitm(10000, 2, 43, 2, 24))   # VÉRIFIER QUELLE VALEUR METTRE POUR PAS AVOIR D'ERREUR

@@ -27,16 +27,17 @@
 
 =======================================================================
 
-** Demander explications Martin
+** Fonctionnel --> comparer à .f
 
 ======================================================================="""
 
-import math
+from math import atan, pi
 
+# rotation selon le plan surface autour de y
 def angleazimutal(x1, y1, x2, y2):
 
     if (x2 - x1 != 0.):
-        angazi=abs(atan((y2-y1)/(x2-x1)))
+        angazi = abs(atan((y2-y1)/(x2-x1)))     # si fonctionne pas atan2
 
     if ((x2 -x1 == 0.) and (y2 -y1 == 0.)):
         angazi = 0.
@@ -44,24 +45,23 @@ def angleazimutal(x1, y1, x2, y2):
     else:
         if (x2 - x1 > 0.):
             if (y2 - y1 < 0.):
-                angazi = 2.* (math.pi-angazi)
+                angazi = 2.* (pi-angazi)
 
         elif (x2 - x1 < 0.):
             if (y2 - y1 < 0.):
-                angazi = angazi + math.pi
+                angazi = angazi + pi
             else:
-                angazi = math.pi - angazi
+                angazi = pi - angazi
 
         else:
             if (y2 > y1):
-                angazi = math.pi/2
+                angazi = pi/2
             if (y2 < y1):
-                angazi = 3.*math.pi/2
+                angazi = 3.* pi/2
 
-        if ((angazi < 0.) or (angazi > 2.*math.pi)):
+        if ((angazi < 0.) or (angazi > 2.*pi)):  # doit être entre 0 et 2pi
             print("'ERREUR angazi = ", angazi, x1, y2, x2, y2)
 
-return angazi
+    return angazi
 
-
-# rotation selon le plan surface rotation de y
+print(angleazimutal(10, 12, 20, 21))

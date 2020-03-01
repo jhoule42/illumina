@@ -5,7 +5,9 @@
   l'angle zenithal
 
   Determine l'angle zenithal entre les points (x1,y1,z1) et (x2,y2,z2)
-  Retourne l'angle angzen en radians
+  Retourne l'angle angzen en radians.
+
+  ** L'angle zénithal est l'angle à partir du haut
 
   pour utilisation avec Illumina
 -----------------------------------------------------------------------
@@ -28,16 +30,14 @@
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
 
-** Demander explications Martin
+** Fonctionnel --> comparer à .f
 
 ======================================================================="""
 
 
-
-
 import math
 
-def anglezenithal(x1, y1, z1, x2, y2, z2):
+def anglezenithal(x1, y1, x2, y2, z1, z2):
 
     hdist = math.sqrt((x2-x1)**2. + (y2-y1)**2.)    # pythagore
 
@@ -45,15 +45,15 @@ def anglezenithal(x1, y1, z1, x2, y2, z2):
         angzen = math.atan(hdist/abs(z2-z1))
 
         if (z2 - z1 < 0):
-            angzen = math.pi - angzen
+            angzen = math.pi - angzen   # rotation de pi pour être dans le domaine
 
     else:
         angzen = math.pi / 2.
 
-    if ((angzen < 0) or (angzen > math.pi)):       # pourquoi?
+    if ((angzen < 0) or (angzen > math.pi)):    # 0 pointe vers le haut et pi vers le bas
         print("ERREUR angzen2=", angzen)
 
-return angzen
+    return angzen
 
 
-#angle à partir du zénith (le haut)
+print(anglezenithal(12,23,43,12,12,12))

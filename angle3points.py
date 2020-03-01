@@ -6,7 +6,7 @@
 
   Determine l'angle entre 3 points (x1,y1,z1), (x2,y2,z2) et (x3,y3,z3)
   dont le sommet est au point 2
-  Retourne l'angle angle en radians
+  Retourne l'angle en radians
 
   pour utilisation avec Illumina
 -----------------------------------------------------------------------
@@ -28,9 +28,13 @@
 
     Contact: martin.aube@cegepsherbrooke.qc.ca
 
+=======================================================================
+
+Statut : Fonctionnel --> comparer à .f
+
 ======================================================================="""
 
-import math
+from math import sqrt, pi, acos
 
 def angle3points(x1,y1,z1,x2,y2,z2,x3,y3,z3):
 
@@ -42,29 +46,28 @@ def angle3points(x1,y1,z1,x2,y2,z2,x3,y3,z3):
     yv=y3-y2
     zv=z3-z2
 
-    if (xv = 0.) and (yv = 0) and (zv = 0):
-        print("Erreur vecteur de sortie nul")
+    if (xv == 0.) and (yv == 0) and (zv == 0):
+        ValueError("Erreur vecteur de sortie nul")
         print(x1,y1,z1,x2,y2,z2,x3,y3,z3)
-        break       # ou sys.exit(0) ?
 
-    if (xu = 0.) and (yu = 0.) and (zu = 0.):
-        print("Erreur vecteur de sortie nul")
+    if (xu == 0.) and (yu == 0.) and (zu == 0.):
+        ValueError("Erreur vecteur de sortie nul")
         print(x1,y1,z1,x2,y2,z2,x3,y3,z3)
-        break       # ou sys.exit(0) ?
 
-    argume = ((xu*xv) + (yu*yv) + (zu*zv)) / (math.sqrt(xu**2.+ yu**2.+ zu**2.)* sqrt(xv**2.+yv**2.+zv**2.))
+    argume = ((xu*xv) + (yu*yv) + (zu*zv)) / (sqrt(xu**2.+ yu**2.+ zu**2.)* sqrt(xv**2.+yv**2.+zv**2.))
 
     if (argume > 1):
         an3pts = 0.
 
     elif (argume < -1):
-        an3pts = math.pi()
+        an3pts = pi()
 
     else:
-        an3pts = math.acos(argume)
+        an3pts = acos(argume)
 
     if (an3pts < 0):
-        print("Error : an3pts < 0")
-        break       # ou sys.exit(0) ?
+        ValueError("Error: an3pts < 0")
 
-return an3pts
+    return an3pts
+
+print(angle3points(1, 3, 2, 3, 2, 1, 2, 3, 2))

@@ -29,12 +29,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Contact: martin.aube@cegepsherbrooke.qc.ca
+=======================================================================
+
+Statut: Demander questions à Martin
+
 ======================================================================="""
 
 
-import math
-from math import pi
-
+import numpy as np
+from math import pi, cos, exp, log
 
 def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
 
@@ -53,22 +56,21 @@ def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
 #        Calcul de la fonction d'emission de la source vers la cible
 #=======================================================================
 
-    fonc_ae = fonc_a(rang)       # fonc_ae est une liste de 181 éléments ?
+    fonc_a = np.zeros((181))
+    fonc_ae = fonc_a(rang)       # fonc_ae est une liste de 181 éléments ou de size(rang)
     fctmol = 0.75 * (1.+((math.cos()(angdif))**2.)) / (4.*pi)
 
 #--------------------------------------------------------------------
 #  Calcul des probabilites de diffusion par unite d'angle solide
 #-----------------------------------------------------------------------
 
-# Les fonctions utilisees ici sont deja normalisees
+    # Les fonctions utilisees ici sont deja normalisees
     prob_a = (1.-exp(log(tranaa) * exp(-1.*altit/2000.) * un/2000.))*secdif * fonc_ae
     prob_m=(1.-exp(log(tranam)*exp(-1.*altit/8000.)*un/8000.))* fctmol
 
     # Fonc_ae normalisee dans le MAIN, fctmol dans la routine (voir la division par 4 pi)
 
-
     pdif = prob_a+prob_m                  # Ce calcul est approximatif et bon seulement si 1-transa et  1-transm sont tres petits.
-
 
     if (prob_a > 1.):
         raise ValueError("a > 1")

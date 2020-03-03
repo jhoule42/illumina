@@ -1,5 +1,5 @@
 """===================================================================
-Convertir les données sont forme binaire
+Convertir les données à partir de la forme binaire
 
  pour utilisation avec Illumina
 -----------------------------------------------------------------------
@@ -25,24 +25,3 @@ Convertir les données sont forme binaire
 Statut: demander questions de programmation Martin
 
 -----------------------------------------------------------------------"""
-
-import numpy as np
-
-def twodin(nbx, nby, filename):
-
-    width = 512
-    bindata = np.zeros((width, width))
-
-    with open(filename, 'r') as rfile:
-
-        if (nbx > width) or (nby > width):
-            raise ValueError("""You try to use a domain larger than the maximum allowed.
-            Please restrict it to no more that 512 x 512. Your domain size is:"""
-            nbx,'x',nby)
-
-        for j in range(nby, 1, -1):
-            for i in range(1, nbx):
-
-
-
-# quoi retourner?

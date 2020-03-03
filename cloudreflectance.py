@@ -20,7 +20,7 @@
 
 ================================================================================
 
-Statut : Vérifier fonctionnement
+Statut : Fonctionnel --> comparer à .f
 
 ================================================================================"""
 
@@ -37,8 +37,12 @@ Statut : Vérifier fonctionnement
 #   rho(z)=a0+a1*cos z + a2 * cos^2 z + a3 * cos^3 z according to Shapiro 1982 Table 10
 
 import numpy as np
+from math import cos
 
-def cloudreflectance(angzen, cloudt):
+def cloudreflectance(angzen, cloud):
+
+    if (cloud < 0 or cloud > 4):
+        raise ValueError("Error cloud type not define")
 
 # (type de nuages, coefficiant de la formule)
     rhocld = np.zeros((5, 4))
@@ -64,5 +68,8 @@ def cloudreflectance(angzen, cloudt):
     rhocld[4,2]=-0.10895
     rhocld[4,3]=0.09460
 
-    rcloud = rhocld[cloudt,0] + rhocld[cloudt,1]*cos(angzen) + rhocld[cloudt,2]*(cos(angzen))**2.+rhocld[cloudt,3]*(cos(angzen))**3.
-    print("rcloud: ", rcloud, "angzen: ", angzen, "cos(angzen)", math.cos(angzen))
+    rcloud = rhocld[cloud,0] + rhocld[cloud,1]*cos(angzen) + rhocld[cloud,2]*(cos(angzen))**2.+rhocld[cloud,3]*(cos(angzen))**3.
+    print("rcloud:", rcloud, "angzen:", angzen, "cos(angzen)", cos(angzen))
+
+
+print(cloudreflectance(1.52, 0))

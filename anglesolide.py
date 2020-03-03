@@ -26,78 +26,81 @@
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
 
-Statut : Vérifier fonctionnement + explications de Martin
+Statut : Fonctionnel --> comparer à .f + explications de Martin
 
 ======================================================================="""
 
-import math
+from math import sqrt, acos, tan
 
 def anglesolide(r1x, r1y, r1z, r2x, r2y, r2z, r3x, r3y, r3z, r4x, r4y, r4z):
 
-    r1=dsqrt(r1x**2.+r1y**2.+r1z**2.)                                   # Calcul de la norme du vecteur #1.
-    r2=dsqrt(r2x**2.+r2y**2.+r2z**2.)                                   # Calcul de la norme du vecteur #2.
-    r3=dsqrt(r3x**2.+r3y**2.+r3z**2.)                                   # Calcul de la norme du vecteur #3.
-    r4=dsqrt(r4x**2.+r4y**2.+r4z**2.)                                   # Calcul de la norme du vecteur #4.
+    r1 = sqrt(r1x**2.+r1y**2.+r1z**2.)       # Calcul de la norme du vecteur #1.
+    r2 = sqrt(r2x**2.+r2y**2.+r2z**2.)       # Calcul de la norme du vecteur #2.
+    r3 = sqrt(r3x**2.+r3y**2.+r3z**2.)       # Calcul de la norme du vecteur #3.
+    r4 = sqrt(r4x**2.+r4y**2.+r4z**2.)       # Calcul de la norme du vecteur #4.
 
-    if (r1 = 0.):
+    if (r1 == 0.):
         raise ValueError("Erreur r1 = 0")
 
-    if (r2 = 0.):
+    if (r2 == 0.):
         raise ValueError("Erreur r2 = 0")
 
-    if (r3 = 0.):
+    if (r3 == 0.):
         raise ValueError("Erreur r3 = 0")
 
-    if (r4 = 0.):
+    if (r4 == 0.):
         raise ValueError("Erreur r4 = 0")   # Version original imprime r1
 
-    arg=(r1x*r2x+r1y*r2y+r1z*r2z)/(r1*r2)
 
+    arg = (r1x*r2x+r1y*r2y+r1z*r2z)/(r1*r2)
     if (arg > 1.0):   # pk on fait une correction d'erreur?
            arg=1.0
     if (arg < -1.0):
            arg=-1.0
+    # Calcul de l'angle entre le vecteur #1 et le vecteur #2.
+    tet12 = acos(arg)   # dacos == arcosinus
 
-        # est ce que dacos est arcosinus?
-    tet12=math.acos(arg)                      # Calcul de l'angle entre le vecteur #1 et le vecteur #2.
 
-
-    arg=(r2x*r3x+r2y*r3y+r2z*r3z)/(r2*r3)
+    arg = (r2x*r3x+r2y*r3y+r2z*r3z)/(r2*r3)
     if (arg > 1.0):
          arg=1.0
     if (arg <-1.0):
         arg=-1.0
-    tet23=math.acos(arg)                      # Calcul de l'angle entre le vecteur #2 et le vecteur #3.
+    # Calcul de l'angle entre le vecteur #2 et le vecteur #3.
+    tet23 = acos(arg)
 
 
-    arg=(r3x*r1x+r3y*r1y+r3z*r1z)/(r3*r1)
+    arg = (r3x*r1x+r3y*r1y+r3z*r1z)/(r3*r1)
     if (arg > 1.0):
         arg=1.0
     if (arg < -1.0):
         arg=-1.0
-    tet13=math.acos(arg)                        # Calcul de l'angle entre le vecteur #1 et le vecteur #3.
+    # Calcul de l'angle entre le vecteur #1 et le vecteur #3.
+    tet13 = acos(arg)
 
 
-    arg=(r3x*r4x+r3y*r4y+r3z*r4z)/(r3*r4)
+    arg = (r3x*r4x+r3y*r4y+r3z*r4z)/(r3*r4)
     if (arg > 1.0):
         arg=1.0
     if (arg < -1.0):
         arg=-1.0
-    tet34=math.acos(arg)                        # Calcul de l'angle entre le vecteur #3 et le vecteur #4.
+    # Calcul de l'angle entre le vecteur #3 et le vecteur #4.
+    tet34 = acos(arg)
 
 
-    arg=(r2x*r4x+r2y*r4y+r2z*r4z)/(r2*r4)
+    arg = (r2x*r4x+r2y*r4y+r2z*r4z)/(r2*r4)
     if (arg > 1.0):
         arg=1.0
     if (arg < -1.0):
         arg =-1.0
-    tet24 = math.acos(arg)                      # Calcul de l'angle entre le vecteur #2 et le vecteur #4.
+    # Calcul de l'angle entre le vecteur #2 et le vecteur #4.
+    tet24 = acos(arg)
 
 
     a = tet23
     b = tet13
     c = tet12
-    s=(a+b+c)/2.
+    s = (a+b+c)/2.
 
     if ((math.tan(s/2.) * math.tan((s-a)/2.) * math.tan((s-b)/2.) * math.tan((s-c)/2.)) < 0.):
         a123 = 0.
@@ -118,19 +121,22 @@ def anglesolide(r1x, r1y, r1z, r2x, r2y, r2z, r3x, r3y, r3z, r4x, r4y, r4z):
     c=tet24
     s=(a+b+c)/2.
 
-    if ((math.tan(s/2.)*dtan((s-a)/2.)*dtan((s-b)/2.)*math.tan((s-c)/2.)) < 0.):
+    if ((tan(s/2.)*tan((s-a)/2.)*tan((s-b)/2.)*tan((s-c)/2.)) < 0.):
         a234 = 0.
     else:
         # Calcul de l'aire du triangle spherique borne par les vecteurs 2, 3 et 4.
-        a234 = 4. * math.atan(math.sqrt(math.tan(s/2.) * math.tan((s-a)/2.) * math.tan((s-b)/2.) * math.tan((s-c)/2.)))
+        a234 = 4. * tan(sqrt(tan(s/2.) * tan((s-a)/2.) * tan((s-b)/2.) * tan((s-c)/2.)))
 
 # ----------------------------------------------------------------------------------------------------------------------------------
-#         alp=2.*atan(sqrt(sin(s-b)*sin(s-c)/(sin(s)*sin(s-a))))          ! Autre methode pour calculer l'angle solide non utilisee.
-#         bet=asin(sin(b)*sin(alp)/sin(a))                                ! Autre methode pour calculer l'angle solide non utilisee.
-#         gam=asin(sin(c)*sin(alp)/sin(a))                                ! Autre methode pour calculer l'angle solide non utilisee.
-#         a234=alp+bet+gam-pi                                             ! Autre methode pour calculer l'angle solide non utilisee.
+#         alp=2.*atan(sqrt(sin(s-b)*sin(s-c)/(sin(s)*sin(s-a))))           Autre methode pour calculer l'angle solide non utilisee.
+#         bet=asin(sin(b)*sin(alp)/sin(a))                                 Autre methode pour calculer l'angle solide non utilisee.
+#         gam=asin(sin(c)*sin(alp)/sin(a))                                 Autre methode pour calculer l'angle solide non utilisee.
+#         a234=alp+bet+gam-pi                                              Autre methode pour calculer l'angle solide non utilisee.
 # ----------------------------------------------------------------------------------------------------------------------------------
 
-    omega= a123+a234              # L'angle solide est la somme des aires des deux triangles spheriques.
+    omega= a123 + a234      # L'angle solide est la somme des aires des deux triangles spheriques.
 
-return omega
+    return omega
+
+
+print(anglesolide)

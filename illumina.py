@@ -70,7 +70,7 @@ from horizon import horizon
 
 
 import numpy as np
-from math import pi, atan, sin
+from math import pi, atan, sin, sqrt
 
 
 # ======================================================================
@@ -423,10 +423,85 @@ for i in range(1, nbx):
     if (z_obs == 0.):
         z_obs = 0.001
     largx=dx*nbx                              # Computation of the Width along x of the case.
-    largy=dy*nby                              # Computation of the Width along x of the case.
+    largy=dy*nby                              # Computation of the Width along y of the case.
 
 """        write(2,*) 'Width of the domain [NS](m):',largx,'#cases:',nbx
         write(2,*) 'Width of the domain [EO](m):',largy,'#cases:',nby
         write(2,*) 'Size of a cell (m):',dx,' X ',dy
         write(2,*) 'latitu center:',latitu
 """
+
+
+
+# FAIRE LE BLOC DE LA LIGNE 716 à 801
+
+
+# Beginning of the loop over the types of light sources
+
+for stype in range(1, ntype):               # Beginning of the loop over the source types.
+    if (totlu[stype] != 0):                 # Check if there are any flux in that source type otherwise skip this lamp
+        if (verbose >= 1):
+            print("Turning on lamps", stype)
+"""     if (verbose.ge.1) write(2,*) ' Turning on lamps' stype      """
+        itotty=0.
+        for x_s in range(1, nbx):           # Initialisation of the contribution of a source types to
+            for y_s in range(1, nby):       # the intensity toward the sensor by a line of sight voxel.
+                ITT[x_s, y_s, stype]=0.     "Vérifier que j'ai besoin de faire ça"
+
+        for x_s in range(imin[stype], imax[stype])           # Beginning of the loop over the column (longitude the) of the domain.
+            for y_s in range(jmin[stype], jmax[stype])       # Beginning of the loop over the rows (latitud) of the domain.
+                intdir=0.
+                itotind=0.
+                itodif=0.
+                itotrd=0.
+                isourc=0.
+                rx_s = x_s*dx
+                ry_s = y_s*dy
+                if (lamplu[x_s, y_s, stype] != 0):                 # If the luminosite of the case is null, ignore this case.
+                    z_s = (altsol[x_s, y_s] + lampal[x_s, y_s])    # Definition of the position (metre) vertical of the source.
+
+# *********************************************************************************************************
+# * computation of the direct intensity toward the observer by a line of sight voxel from the source      *
+# *********************************************************************************************************
+
+                    dirck=0                             # Initialisation of the verification of the position of the source
+                    if ((rx_s == rx_c) and (ry_s == ry_c) and (z_s == z_c)):   # If the position of the source and the line of sight
+                        dirck =1                                                # voxel are the same then ...
+                        if (verbose == 2):
+                            if (verbose >= 1):      # Erreur? Pk faire ça?
+                                print("Source = line of sight")
+                    # End of the case positions x and y source and line of sight voxel identical.
+
+
+                    if (dirck != 1):                  # The source is not at the line of sight voxel position
+# computation of the zenithal angle between the source and the line of sight
+# computation of the horizon for the resolved shadows direct              ! horizon resolution is 1 degree
+                        distd = sqrt((rx_c-rx_s)**2. + (ry_c-ry_s)**2. + (z_c-z_s)**2.)
+                        dho =
+
+
+
+distd=sqrt((rx_c-rx_s)**2.
+     +                        +(ry_c-ry_s)**2.
+     +                        +(z_c-z_s)**2.)
+                              dho=sqrt((rx_c-rx_s)**2.
+     +                        +(ry_c-ry_s)**2.)
+                              call anglezenithal(rx_s,ry_s,z_s
+     +                        ,rx_c,ry_c,z_c,angzen)                      ! computation of the zenithal angle between the source and the line of sight voxel.
+                              call angleazimutal(rx_s,ry_s,rx_c,          ! computation of the angle azimutal direct line of sight-source
+     +                        ry_c,angazi)
+                              if (angzen.gt.pi/4.) then                   ! 45deg. it is unlikely to have a 1km high mountain less than 1
+                                call horizon(x_s,y_s,z_s,dx,dy,altsol,
+     +                          angazi,zhoriz,dh)
+                                if (dh.le.dho) then
+                                  if (angzen.lt.zhoriz) then                ! shadow the path line of sight-source is not below the horizon => we compute
+                                    hh=1.
+                                  else
+                                    hh=0.
+                                  endif
+                                else
+                                  hh=1.
+                                endif
+                              else
+                                hh=1.
+                              endif

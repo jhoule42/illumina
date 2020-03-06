@@ -66,12 +66,23 @@
 #     Import Functions and librairies
 # ======================================================================
 
-from horizon import horizon
+from horizon import horizons
+from transTOA import transtoa
+from twodin import twodin
+from anglezenithal import anglezenithal
+from angleazimutal import angleazimutal
+from transmitm import transmitm
+from transmita import transmita
+from angle3points import angle3points
+from diffusion import diffusion
+from cloudreflectance import cloudreflectance
+from anglesolide import anglesolide
+from zone_diffusion import zone_diffusion
+from twodout import twodout
 
 
 import numpy as np
-from math import pi, atan, sin, sqrt
-
+from math import sqrt, pi, sin, cos, tan, atan
 
 # ======================================================================
 #     Variables declaration
@@ -477,31 +488,208 @@ for stype in range(1, ntype):               # Beginning of the loop over the sou
 # computation of the zenithal angle between the source and the line of sight
 # computation of the horizon for the resolved shadows direct              ! horizon resolution is 1 degree
                         distd = sqrt((rx_c-rx_s)**2. + (ry_c-ry_s)**2. + (z_c-z_s)**2.)
-                        dho =
-
-
-
-distd=sqrt((rx_c-rx_s)**2.
-     +                        +(ry_c-ry_s)**2.
-     +                        +(z_c-z_s)**2.)
-                              dho=sqrt((rx_c-rx_s)**2.
-     +                        +(ry_c-ry_s)**2.)
-                              call anglezenithal(rx_s,ry_s,z_s
-     +                        ,rx_c,ry_c,z_c,angzen)                      ! computation of the zenithal angle between the source and the line of sight voxel.
-                              call angleazimutal(rx_s,ry_s,rx_c,          ! computation of the angle azimutal direct line of sight-source
-     +                        ry_c,angazi)
-                              if (angzen.gt.pi/4.) then                   ! 45deg. it is unlikely to have a 1km high mountain less than 1
-                                call horizon(x_s,y_s,z_s,dx,dy,altsol,
-     +                          angazi,zhoriz,dh)
-                                if (dh.le.dho) then
-                                  if (angzen.lt.zhoriz) then                ! shadow the path line of sight-source is not below the horizon => we compute
+                        dho = sqrt((rx_c-rx_s)**2. + (ry_c-ry_s)**2.)
+                        # Computation of the zenithal angle between the source and the line of sight voxel.
+                        anglezenithal(rx_s, ry_s, z_s, rx_c, ry_c, z_c, angzen)
+                        # Computation of the angle azimutal direct line of sight-source
+                        angleazimutal(rx_s,ry_s,rx_c,ry_c,angzen)
+                        if (angzen > pi/4.):               # 45deg. it is unlikely to have a 1km high mountain less than 1
+                            horizon(x_s,y_s,z_s,dx,dy,altsol,angazi,zhoriz,dh)
+                            if (dh <= dho):
+                                if (angzen < zhoriz):  # Shadow the path line of sight-source not below the horizon => we compute
                                     hh=1.
-                                  else
+                                else:
                                     hh=0.
-                                  endif
-                                else
-                                  hh=1.
-                                endif
-                              else
+                            else
                                 hh=1.
-                              endif
+                        else
+                            hh=1.
+
+# Sub-grid obstacles
+                        angmin = pi/2.-atan((altsol[x_s,y_s] + obsH[x_s,y_s]-z_s) / drefle[x_s,y_s])
+                        if (angzen < angmin):             # Condition sub-grid obstacles direct.
+                                ff=0.
+                        else:
+                            ff=ofill[x_s,y_s]
+
+# Computation of the transmittance between the source and the line of sight
+                        transmitm(angzen,z_s,z_c,distd,transm,tranam)
+                        transmita(angzen,z_s,z_c,distd,transa,tranaa)
+
+# Computation of the solid angle of the line of sight voxel seen from the source
+                        omega = 1./distd**2.
+                        if (omega > omemax):
+                            omega=0.
+                        anglez = round(180.*angzen/pi)+1
+                        P_dir = pvalno[anglez,stype]
+
+# Computation of the flux direct reaching the line of sight voxel
+                        fldir=lamplu(x_s,y_s,stype)*P_dir*omega*transm*transa*(1.-ff)*hh   # Correction for obstacle filling factor
+
+# Computation of the scattering probability of the direct light
+# Distance pour traverser la cellule unitaire parfaitement orientée
+                        if (omega != 0.):
+                            angle3points(rx_s,ry_s,z_s,rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,angdif)    # Scattering angle.
+                            diffusion(angdif,tranam,tranaa,secdif,un,fdifan,pdifdi,z_c) # Scattering probability of the direct light.
+                        else:
+                            pdifdi=0.
+
+# Computation of the source contribution to the direct intensity toward the sensor by a line of sight voxel
+                        intdir = fldir*pdifdi
+
+# Contribution of the cloud reflexion of the light coming directly from the source
+                        if (cloudt. != 0)                      #Line of sight voxel = cloud
+                            if (cloudbase-z_c <= iz*scal):
+                                anglezenithal(rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,azcl1)  # Zenith angle from cloud to observer
+                                anglezenithal(rx_c,ry_c,z_c,rx_s,ry_s,z_s,azcl2)    # Zenith angle from source to cloud
+                                doc2=(rx_c-rx_obs)**2.+(ry_c-ry_obs)**2.+(z_c-z_obs)**2.
+                                dsc2=(rx_s-rx_c)**2.+(ry_s-ry_c)**2.+(z_s-z_c)**2.
+                                cloudreflectance(angzen,cloudt,rcloud)      # Cloud intensity from direct illum
+                                icloud=icloud+fldir/omega*rcloud*doc2*omefov*abs(cos(azcl2)/cos(azcl1))/dsc2/pi
+
+                    else:
+                        intdir=0.
+# End of the case Position Source is not equal to the line of sight voxel position
+# End of the computation of the direct intensity
+
+
+# **********************************************************************************************************************
+# * Computation of the scattered light toward the observer by a line of sight voxel lighted by the ground reflexion    *
+# **********************************************************************************************************************
+
+# etablissement of the conditions ands boucles
+                    itotind=0.           # Initialisation of the reflected intensity of the source
+                    itotrd=0.
+                    boxx=round(reflsiz/dx)           # Number of column to consider left/right of the source for the reflexion.
+                    boxy=round(reflsiz/dy)           # Number of column to consider up/down of the source for the reflexion.
+                    xsrmi = x_s-boxx
+                    if (xsrmi < 1):
+                        xsrmi=1
+                        xsrma=x_s+boxx          # Vérifier indentation
+                    if (xsrma > nbx):
+                        xsrma=nbx
+                        ysrmi=y_s-boxy          # Vérifier indentation
+                    if (ysrmi < 1):
+                        ysrmi=1
+                        ysrma=y_s+boxy          # Vérifier indentation
+                    if (ysrma > nby):
+                        ysrma=nby
+
+                    # Vérifier indentation
+
+                    for x_sr in range(xsrmi, xsrma):        # Beginning of the loop over the column (longitude) reflecting.
+                        rx_sr=real(x_sr)*dx
+
+                        for y_sr in range(ysrmi, ysrma):    # Beginning of the loop over the rows (latitu) reflecting.
+                            ry_sr = y_sr*dy
+                            irefl=0.
+                            z_sr = altsol[x_sr,y_srz]
+                            if((x_sr > nbx) or (x_sr < 1) or (y_sr > nby) or (y_sr < 1)):
+                                if (verbose == 2):
+                                    print('Ground cell out of borders')
+                            else:
+                                if((x_s == x_sr) and (y_s == y_sr) == (z_s == z_sr)):
+                                    if (verbose == 2):
+                                        print('Source pos = Ground cell')
+                                else:
+                                    # if haut is negative, the ground cell is lighted from below
+                                    haut=-(rx_s-rx_sr)*tan(inclix[x_sr,y_sr])-(ry_s-ry_sr)*tan(incliy[x_sr,y_sr])+z_s-z_sr
+
+# Computation of the zenithal angle between the source and the surface reflectance
+                                    if (haut > 0.):              # Condition: the ground cell is lighted from above
+                                        anglezenithal(rx_s,ry_s,z_s,rx_sr,ry_sr,z_sr,angzen)
+                                        # end of the case "observer at the same latitu/longitude than the source".
+                                        # End mais on reste dans le même if?
+
+# Computation of the transmittance between the source and the ground surface
+                                        distd=sqrt((rx_s-rx_sr)**2.+(ry_s-ry_sr)**2.+(z_s-z_sr)**2.)
+                                        transmitm(angzen,z_s,z_sr,distd,transm,tranam)
+                                        transmita(angzen,z_s,z_sr,distd,transa,tranaa)
+
+
+
+# Computation of the solid angle of the reflecting cell seen from the source
+                                        xc=dble[x_sr]*dble[dx]            # Position in meters of the observer voxel (longitude).
+                                        yc=dble[y_sr]*dble[dy]            # Position in meters of the observer voxel (latitu).
+                                        zc=dble[z_sr]                     # Position in meters of the observer voxel (altitude).
+                                        xn=dble[x_s]*dble[dx]             # Position in meters of the source (longitude).
+                                        yn=dble[y_s]*dble[dy]             # Position in meters of the source (latitu).
+                                        zn=dble[z_s]                      # Position in meters of the source (altitude).
+                                        epsilx=inclix[x_sr,y_sr]          # tilt along x of the ground reflectance
+                                        epsily=incliy[x_sr,y_sr]          # tilt along x of the ground reflectance
+                                        # use a sub-grid surface when the reflectance radius is smaller than the cell size
+                                        if (dx > reflsiz):
+                                            if ((x_sr == x_s) and (y_sr == y_s)):
+                                                dxp=reflsiz
+                                            else:
+                                                dxp=dx
+                                        else:
+                                            dxp=dx
+
+                                        if (dy > reflsiz):
+                                            if ((x_sr == x_s) and (y_sr == y_s)):
+                                                dyp=reflsiz
+                                            else:
+                                                dyp=dy
+                                        else:
+                                            dyp=dy
+
+                                        r1x=xc-dxp/2.-xn            # computation of the composante along x of the first vector.
+                                        r1y=yc+dyp/2.-yn            # computation of the composante along y of the first vector.
+                                        r1z=zc-tan(epsilx)*dxp/2.+tan(epsily)*(dyp)/2.-zn  # computation of the composante en z of the first vector.
+                                        r2x=xc+(dxp)/2.-xn            # computation of the composante along x of the second vector.
+                                        r2y=yc+(dyp)/2.-yn            # computation of the composante along y of the second vector.
+                                        r2z=zc+tan((epsilx))*(dxp)/2.+tan((epsily))*(dyp)/2.-zn    # computation of the composante en z of the second vector.
+                                        r3x=xc-(dxp)/2.-xn            # computation of the composante along x of the third vector.
+                                        r3y=yc-(dyp)/2.-yn            # computation of the composante along y of the third vector.
+                                        r3z=zc-tan((epsilx))*(dxp)/2.-tan((epsily))*(dyp)/2.-zn   #  computation of the composante en z of the third vector.
+                                        r4x=xc+(dxp)/2.-xn            # computation of the composante along x of the fourth vector.
+                                        r4y=yc-(dyp)/2.-yn            # computation of the composante along y of the fourth vector.
+                                        r4z=zc+tan((epsilx))*(dxp)/2.-tan((epsily))*(dyp)/2.-zn   # computation of the composante en z of the fourth vector.
+
+                                        # Call of the routine anglesolide to compute the angle solide.
+                                        anglesolide(omidiega,r1x,r1y,r1z,r2x,r2y,r2z,r3x,r3y, r3z,r4x,r4y,r4z)
+
+                                        # VÉRIFIER INDENTATION ???
+                                        if (omega < 0.):
+                                            raise ValueError("ERROR: Solid angle of the reflecting surface < 0.")
+
+# Estimation of the half of the underlying angle of the solid angle       ! this angle servira a obtenir un meilleur isime (moyenne) of
+# P_dir for le cas of grans solid angles the , pvalno varie significativement sur +- ouvang.
+                                        ouvang = sqrt(omega/pi)             # Angle in radian.
+                                        ouvang = ouvang*180./pi             # Angle in degrees.
+
+# computation of the photometric function of the light fixture toward the reflection surface
+#=======================================================================
+
+                                        anglez=round(180.*angzen/pi)
+                                        if (anglez < 0):
+                                            anglez=-anglez
+                                        if (anglez > 180):
+                                            anglez=360-anglez
+                                        # vérifier indentation
+                                        anglez=anglez+1     # Transform the angle in integer degree into the position in the array.
+                                                            # average +- ouvang
+
+                                        naz=0
+                                        nbang=0.
+                                        P_indir=0.
+
+                                        for na i range(-round(ouvang), round(ouvang)):
+                                            naz=anglez+na
+                                            if (naz < 0) naz=-naz
+                                          if (naz > 181):     # symetric function
+                                             naz=362-naz
+                                          if (naz == 0):
+                                              naz=1
+                                          P_indir = P_indir+pvalno[naz,stype]*abs(sin(pi*(naz)/180.))/2.
+                                          nbang = nbang+1.*abs(sin(pi*(naz)/180.))/2.
+
+                                        P_indir = P_indir/nbang
+
+# Computation of the flux reaching the reflecting surface
+                                        flrefl = lamplu[x_s,y_s,stype]*P_indir*omega*transm*transa
+# Computation of the reflected intensity leaving the ground surface
+                                        irefl1 = flrefl*srefl/pi      # The factor 1/pi comes from the normalisation of the fonction
+
+# Rendu à la ligne 1074

@@ -37,7 +37,7 @@ from math import atan, pi
 def angleazimutal(x1, y1, x2, y2):
 
     if (x2 - x1 != 0.):
-        angazi = abs(atan((y2-y1)/(x2-x1)))     # si fonctionne pas atan2
+        angazi = abs(atan((y2-y1)/(x2-x1)))   
 
     if ((x2 -x1 == 0.) and (y2 -y1 == 0.)):
         angazi = 0.

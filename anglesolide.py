@@ -53,7 +53,7 @@ def anglesolide(r1x, r1y, r1z, r2x, r2y, r2z, r3x, r3y, r3z, r4x, r4y, r4z):
 
 
     arg = (r1x*r2x+r1y*r2y+r1z*r2z)/(r1*r2)
-    if (arg > 1.0):   # pk on fait une correction d'erreur?
+    if (arg > 1.0):   # pk on fait une correction d'erreur? --faire gap
            arg=1.0
     if (arg < -1.0):
            arg=-1.0

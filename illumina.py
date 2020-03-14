@@ -80,17 +80,38 @@ from anglesolide import anglesolide
 from zone_diffusion import zone_diffusion
 from twodout import twodout
 
-
 import numpy as np
 from math import sqrt, pi, sin, cos, tan, atan
+from pytools import load_bin
 
 # ======================================================================
 #     Variables declaration
 # ======================================================================
 
-witdh = 512                                                   # Matrix dimension in Length/width and height
+witdh = 512                                                  # Matrix dimension in Length/width and height
 nzon = 256
-pi4 = 4.*pi     # pourquoi?
+pix4 = 4.*pi     # pourquoi?
+verbose = 1                                                  # Very little printout=0, Many printout = 1, even more=2
+diamobj = 1.                                                 # Dumb value for diameter of the objective instrument of the observer.
+volu = 0.
+zero = 0.
+un = 1.
+ff = 0.
+dstep = 1
+ncible = 1024
+stepdi = 1
+
+
+"""character*72 mnaf                                                   ! Terrain elevation file
+character*72 diffil                                                 ! Aerosol file
+character*72 outfile                                                ! Results file
+character*72 pclf,pclgp                                             ! Files containing contribution and sensitivity maps
+character*72 pclimg,pcwimg
+character*72 basenm                                                 ! Base name of files
+character*72 pafile,lufile,alfile,ohfile,odfile,offile              ! Files related to light sources and obstacles (photometric function of the sources (sr-1), flux (W), height (m), obstacles c                                                               ! height (m), obstacle distance (m), obstacle filling factor (0-1).
+character*3 lampno                                                  ! lamp number string
+"""
+
 
 drefle = np.zeros((witdh, witdh))                             # Mean free path to the ground (meter)
 val2d = np.zeros((witdh, witdh))                              # Temporary input array 2d
@@ -105,50 +126,52 @@ anglea = np.zeros((181))                                      # Aerosol scatteri
 inclix = np.zeros((width,width))                              # Tilt of the ground pixel along x (radian)
 incliy = np.zeros((width,width))                              # Tilt of the ground pixel along y (radian)
 zondif = np.zeros(3000000,3)                                  # Array for the scattering voxels positions
-obsH = np.zeros((width,width)),angmin                         # Averaged height of the sub-grid obstacles
-ofill = np.zeros((width,width))                               # Fill factor giving the probability to hit an obstacle when pointing in #                                                               its direction integer 0-100
+obsH = np.zeros((width,width))                               # Averaged height of the sub-grid obstacles
+ofill = np.zeros((width,width))                               # Fill factor giving  probability hit an obstacle when pointing in its direction integer 0-100
 ITT = np.zeros((width,width,nzon))                            # Total intensity per type of lamp
 ITC = np.zeros((width,width))                                 # Total intensity per line of sight voxel
 FTC = np.zeros((width,width))                                 # Fraction of the total flux at the sensor level
 FCA = np.zeros((width,width))                                 # Sensor flux array
 lpluto = np.zeros((width,width))                              # Total luminosity of the ground cell for all lamps
-
-# Entier
 imin = np.zeros((nzon))                                       # x and y limits containing a type of lamp
 imax = np.zeros((nzon))
 jmin = np.zeros((nzon))
 jmax = np.zeros((nzon))
-
 totlu = np.zeros((nzon))                                      # Total flux of a source type
 flcld = np.zeros((width,width))                               # Flux crossing a low cloud
 
-verbose = 2         # explications?                           # Very little printout=0, Many printout = 1, even more=2
-diamobj = 1.        # explications?                           # Dumb value for diameter of the objective instrument of the observer.
-volu = 0.
-zero = 0.
-un = 1.
-ff = 0.
-dstep = 1
-ncible = 1024
-stepdi = 1
 
 if (verbose >= 1):
     print('Starting ILLUMINA computations...')
 
+""" Il me semble que verbose respecte toujours
+ cette condition si on le définit à 1 ?    """
 
-# Reading of illumina.in (input file)
-# À voir (228 à 255)
+# Reading of the inputs files (illumina.in)
+
+print("Reading illumina.in input file")
+f =  open("illumina.in", "r")
+for line in f:                   # read a file line-by-line
+    print(line, end = '')
+f.close()
+
+""" Faire un test pour vérifier que c'est fonctionnel
+(si on peut utiliser les valeurs lus)
+Vérifier si on a vrm besoin de close et ce que fait
+read(1,*)"""
 
 
-siz = 10                # Explications
+siz = 2500                 # Resolution of the 2nd scat grid in meter
 if (ssswit == 0):
-    effdif = 0.
+    effdif = 0.            # Distance around the source voxel and line of sight voxel (2nd order of scattering)
 else:
-    effdif=100000.                       # This is apparently the minimum value to get some accuracy
-    n2nd=100000
+    effdif=100000.         # This is apparently the minimum value to get some accuracy
+    n2nd=100000            # Desired number of voxel in the calculation of the 2nd scattering
 
-scal = 19
-scalo = scal
+scal = 19                  # Stepping along the line of sight
+scalo = scal               # Scalo : previous value of scal
+
+""" D'où viens 19 et pourquoi faire scalo = scal? """
 
 # -----------------------------------------------------------------------------------
 # Note:                                                                              |
@@ -161,26 +184,33 @@ scalo = scal
 # -----------------------------------------------------------------------------------
 
 omemax = 1./((25.)**2.)
-if (verbose > 1):
-    print('2nd scattering grid = ', siz)
+if (verbose > 0):
+
+""" Il semble que verbose est tjrs > 0? """
+
+    print('2nd scattering grid = ', siz, 'm')
     print('2nd order scattering radius=', effdif,'m')
     print('Pixel size = ', dx,' x ', dy)
     print('Maximum radius for reflexion = ', reflsiz)
 
-# Computing the actual AOD at the wavelength lambda      # lambda = lambd
+# Computing the actual AOD at the wavelength lambda
 if (verbose >= 1):
     print('500nm AOD=', taua, '500nm angstrom coeff.=', alpha)
-    taua = taua*(lambd/500.)**(-1.*alpha)
+taua = taua*(lambd/500.)**(-1.*alpha)
 
-"""    # Determine the Length of basenm        # Explications + traductions fortran
-    lenbase = index(basenm,' ')-1
-    mnaf = basenm(1:lenbase)//'_topogra.bin'                      # Determine the names of input and output files
-    outfile = basenm(1:lenbase)//'.out'
-    pclf = basenm(1:lenbase)//'_pcl.txt'
-    pclimg = basenm(1:lenbase)//'_pcl.bin'
-    pcwimg = basenm(1:lenbase)//'_pcw.bin'
-    pclgp = basenm(1:lenbase)//'_pcl.gplot'
-    """
+
+""" Vérifier le nom des variables lus (genre pour lambda) ? """
+
+
+# Determine the Length of basenm
+
+"""lenbase = index(basenm,' ')-1
+mnaf = basenm(1:lenbase)//'_topogra.bin'                      # Determine the names of input and output files
+outfile = basenm(1:lenbase)//'.out'
+pclf = basenm(1:lenbase)//'_pcl.txt'
+pclimg = basenm(1:lenbase)//'_pcl.bin'
+pcwimg = basenm(1:lenbase)//'_pcw.bin'
+pclgp = basenm(1:lenbase)//'_pcl.gplot' """
 
 # -------------------------------------------------------------------------
 # Note:                                                                    |
@@ -192,26 +222,41 @@ if (verbose >= 1):
 # -------------------------------------------------------------------------
 
 azim = 90.-azim
-    if (azim < 0.):
-        azim = azim+360.
-    if (azim >= 360.):
-        azim = azim-360.
+if (azim < 0.):
+    azim = azim+360.
+if (azim >= 360.):
+    azim = azim-360.
 
 # opening output file
-# À faire!
+
+ """ open(unit=2,file=outfile,status='unknown')
+    Qu'est-ce que ça fait? """
+
+with open("outfile", "w") as f:
 
 # Check if the observation angle is above horizon
     angzen = pi/2.-angvis*pi/180.
     horizon(x, y, z, dx, dy, anga)
 
-    if (angzen > zhoriz):                        # the line of sight is not below the horizon => we compute
-        raise ValueError("""PROBLEM! You try to observe below horizon.
-        No calculation will be made""")
-#        write(2,*) '            Sky radiance (W/str/m**2)          '
-#        write(2,2001) zero
+    if (angzen > zhoriz):                   # The line of sight is not below the horizon => we compute
+        print("PROBLEM! You try to observe below horizon.")
+        print("No calculation will be made")
+
+        f.write("       Sky radiance (W/str/m**2)       ")
+        f.write("               0.0000                  ")
+        #raise ValueError()
+
+"""        write(2,*) '            Sky radiance (W/str/m**2)          '
+        write(2,2001) zero
         print('            Sky radiance (W/str/m**2)          ')
         print('                 0.0000')
-#        close(2)
+        close(2)"""
+
+    f.write("FILED USED:")
+#    f.write(mnaf, diffil)
+    print("Wavelength (nm): ", lambd)
+    print("Aerosol optical depth: " taua)
+    f.write('2nd order scattering radius: ', effdif, ' m')
 
 
 """        write(2,*) 'FILE USED:'
@@ -1008,4 +1053,80 @@ itotind=itotind+intind            ! Sum of the intensities of each reflecting ce
 #                            enddo                                         ! end of the loop over the column (longitude) reflecting.
 #   end of the computation of the reflected intensity
 
-# rendu à la ligne 1492
+
+# ***********************************************************************
+# Computation of the luminous flux reaching the observer
+# ***********************************************************************
+# Computation of the zenithal angle between the observer and the line of sight voxel
+# ======================================================================
+ anglezenithal(rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,angzen)          # computation of the zenithal angle between the line of sight voxel and the observer.
+                                                                  # end of the case "observer at the same latitu/longitude than the source".
+
+
+# Computation of the transmittance between the line of sight voxel and the observer
+distd=sqrt((rx_c-rx_obs)**2.+(ry_c-ry_obs)**2.+(z_c-z_obs)**2.)
+transmitm(angzen,z_c,z_obs,distd,transm,tranam)
+transmita(angzen,z_c,z_obs,distd,transa,tranaa)
+
+# Computation of the flux reaching the objective of the telescope from the line of sight voxel
+fcapt=itotci*ometif*transa*transm                     # computation of the flux reaching the intrument from the line of sight voxel
+for x_s in range(1, nbx):
+    for y_s in range(1, nby):
+        FCA[x_s,y_s]=ITC[x_s,y_s]*ometif*transa*transm
+
+if (cos(pi-angzen) == 0.):
+    raise ValueError("ERROR perfectly horizontal sight is forbidden")
+
+
+# end of the computation of the flux reaching the observer voxel from the line of sight voxel
+ftocap=ftocap+fcapt                            # flux for all source all type all line of sight element
+for x_s in range(1, nbx):
+    for y_s in range(1, nby):
+        FTC[x_s,y_s] = FTC[x_s,y_s]+FCA[x_s,y_s]       # FTC is the array of the flux total at the sensor to identify
+                                                       # the contribution of each ground pixel to the total flux at the observer level
+                                                       # The % is simply given by the ratio FTC/ftocap
+
+# correction for the FOV to the flux reaching the intrument from the cloud voxel
+if (cloudt != 0):
+
+# computation of the flux reaching the intrument from the cloud voxel
+    fccld=icloud*ometif*transa*transm
+    fctcld=fctcld+fccld                                # Cloud flux for all source all type all line of sight element
+
+if (verbose >= 1):
+    print('Added radiance =',fcapt/omefov/(pi*(diamobj/2.)**2.)
+if (verbose >= 1):
+    print('Radiance accumulated =',ftocap/omefov/(pi*(diamobj/2.)**2.)
+if (verbose >= 1):
+#    write(2,*) 'Added radiance =',fcapt/omefov/(pi*(diamobj/2.)**2.)
+if (verbose >= 1):
+#     write(2,*) 'Radiance accumulated =',ftocap/omefov/(pi*(diamobj/2.)**2.)
+        # end of the condition line of sight voxel inside the modelling domain
+        # end condition line of sight voxel 1/stoplim
+
+"Vérifier endif et indentation"
+
+#          if (icible.eq.6) stop    --> qu'est-ce que cela représente?
+
+# Accelerate the computation as we get away from the sources
+scalo=scal
+scal=scal*1.05
+        #    enddo                                                             ! end of the loop over the line of sight voxels.
+if (prmaps == 1):
+"""    open(unit=9,file=pclf,status='unknown')"""
+
+    for x_s in range(1, nbx):
+        for y_s in range(1, nby):
+            FTC[x_s,y_s] = FTC[x_s,y_s]/ftocap                     # Here FTC becomes the flux fraction of each pixel. The sum of FTC values over all pixels give the total flux
+
+    if (verbose == 2):
+        print('Writing normalized contribution array')
+        print('Warning Cloud contrib. excluded from that array.')
+
+    for x_s in range(1,nbx):
+        for y_s in range(1,nby):
+            write(9,*) x_s,y_s,FTC(x_s,y_s)                           ! emettrice au sol, c'est un % par unite of watt installes
+              enddo
+            enddo
+            call twodout(nbx,nby,pclimg,FTC)
+          close(unit=9)

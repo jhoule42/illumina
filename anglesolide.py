@@ -26,7 +26,7 @@
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
 
-Statut : Fonctionnel --> comparer à .f + explications de Martin
+Statut : Fonctionnel --> comparer a .f + explications de Martin
 
 ======================================================================="""
 

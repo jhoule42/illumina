@@ -28,7 +28,7 @@
 # Statut : Comparer avec .f
 
 -----------------------------------------------------------------------"""
-
+# coding=utf-8
 
 import math
 import numpy as np
@@ -38,8 +38,8 @@ def horizon(x, y, z, dx, dy, anga):
 # Variables:
 
     width = 512
-    altsol = np.zeros((width, width))       # altsol est défini dans illumina.py
-    # est ce que si je modifie la valeur de altsol dans illumina.py ça change la valeur dans la fonction?
+    altsol = np.zeros((width, width))       # altsol est dfini dans illumina.py
+    # est ce que si je modifie la valeur de altsol dans illumina.py ca change la valeur dans la fonction?
 
     angaz1 = anga                           # utiliser angaz1 = (pi*anga)/180.  ?
     ix = (math.cos(angaz1))
@@ -58,7 +58,7 @@ def horizon(x, y, z, dx, dy, anga):
         nx = round(posx/dx)     # position en x sur la matrice?
         ny = round(posy/dy)     # position en y sur la matrice?
 
-        if (altsol[nx, ny] > z):    # comparer éléments nx, ny de la matrice?
+        if (altsol[nx, ny] > z):    # comparer elements nx, ny de la matrice?
             zout = (math.pi/2) - (math.atan((altsol(nx, ny)-z)/sqrt(dx**2 * ((nx-x))**2 + dy**2 *(ny-y)**2)))
             d = sqrt(dx**2 * (nx-x)**2 + dy**2 *(ny-y)**2)
 
@@ -72,4 +72,4 @@ def horizon(x, y, z, dx, dy, anga):
     return zhoriz, d, zout    # retourner zout ?
 
 
-print(horizon(100, 55, 5, 20, 25, 3))   # ERREUR: changer les valeurs des paramètres ne change pas la valeur
+print(horizon(100, 55, 5, 20, 25, 3))   # ERREUR: changer les valeurs des parametres ne change pas la valeur

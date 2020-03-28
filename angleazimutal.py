@@ -27,7 +27,7 @@
 
 =======================================================================
 
-** Fonctionnel --> comparer à .f
+** Fonctionnel --> comparer a .f
 
 ======================================================================="""
 
@@ -37,7 +37,7 @@ from math import atan, pi
 def angleazimutal(x1, y1, x2, y2):
 
     if (x2 - x1 != 0.):
-        angazi = abs(atan((y2-y1)/(x2-x1)))   
+        angazi = abs(atan((y2-y1)/(x2-x1)))
 
     if ((x2 -x1 == 0.) and (y2 -y1 == 0.)):
         angazi = 0.
@@ -59,9 +59,9 @@ def angleazimutal(x1, y1, x2, y2):
             if (y2 < y1):
                 angazi = 3.* pi/2
 
-        if ((angazi < 0.) or (angazi > 2.*pi)):  # doit être entre 0 et 2pi
+        if ((angazi < 0.) or (angazi > 2.*pi)):  # doit etre entre 0 et 2pi
             print("'ERREUR angazi = ", angazi, x1, y2, x2, y2)
 
     return angazi
 
-print(angleazimutal(10, 12, 20, 21))
+print(angleazimutal(10, 12, 2, 1))

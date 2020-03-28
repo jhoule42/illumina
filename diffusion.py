@@ -31,7 +31,7 @@
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
 
-Statut: Demander questions à Martin
+Statut: Demander questions a Martin
 
 ======================================================================="""
 
@@ -46,7 +46,7 @@ def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
 #--------------------------------------------------------
 
     if (angdif < 0.):
-        angdif = -angdif   # c'est * -1 ?
+        angdif = -angdif
     if (angdif - pi > 0.00001):
         angdif = pi
     angdeg = ((angdif*180.)/pi)
@@ -57,20 +57,21 @@ def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
 #=======================================================================
 
     fonc_a = np.zeros((181))
-    fonc_ae = fonc_a(rang)       # fonc_ae est une liste de 181 éléments ou de size(rang)
-    fctmol = 0.75 * (1.+((math.cos()(angdif))**2.)) / (4.*pi)
-
-#--------------------------------------------------------------------
+    fonc_ae = fonc_a[rang]       # fonc_ae est une liste de 181 elements ou de size(rang)
+    fctmol = 0.75 * (1.+((cos((angdif))**2.)) / (4.*pi)
+    
+#---------------------------------------------------------------------
 #  Calcul des probabilites de diffusion par unite d'angle solide
-#-----------------------------------------------------------------------
+#---------------------------------------------------------------------
 
     # Les fonctions utilisees ici sont deja normalisees
     prob_a = (1.-exp(log(tranaa) * exp(-1.*altit/2000.) * un/2000.))*secdif * fonc_ae
-    prob_m=(1.-exp(log(tranam)*exp(-1.*altit/8000.)*un/8000.))* fctmol
+    prob_m = (1.-exp(log(tranam) * exp(-1.*altit/8000.) * un/8000.))* fctmol
 
     # Fonc_ae normalisee dans le MAIN, fctmol dans la routine (voir la division par 4 pi)
-
     pdif = prob_a+prob_m                  # Ce calcul est approximatif et bon seulement si 1-transa et  1-transm sont tres petits.
+
+
 
     if (prob_a > 1.):
         raise ValueError("a > 1")
@@ -82,15 +83,13 @@ def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
         raise ValueError("m > 1")
 
     if (prob_m < 0.):
-        raise ValueError("m < 0")       # caractères étranges dans .f
+        raise ValueError("m < 0")
 
     if (pdif > 1.):
-        raise ValueError("pdif > 1")
+        raise ValueError("pdif > 1", pdif,prob_a,prob_m)
 
     if (pdif < 0.):
-        raise ValueError("pdif < 0")
-
-    # vérifier le commentaire dans .f
+        raise ValueError("pdif < 0", pdif,prob_a,prob_m)
 
     return pdif
 

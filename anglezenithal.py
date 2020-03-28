@@ -7,7 +7,7 @@
   Determine l'angle zenithal entre les points (x1,y1,z1) et (x2,y2,z2)
   Retourne l'angle angzen en radians.
 
-  ** L'angle zénithal est l'angle à partir du haut
+   Angle zenithal == angle a partir du haut
 
   pour utilisation avec Illumina
 -----------------------------------------------------------------------
@@ -30,7 +30,7 @@
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
 
-** Fonctionnel --> comparer à .f
+** Fonctionnel --> comparer a .f
 
 ======================================================================="""
 
@@ -45,7 +45,7 @@ def anglezenithal(x1, y1, x2, y2, z1, z2):
         angzen = math.atan(hdist/abs(z2-z1))
 
         if (z2 - z1 < 0):
-            angzen = math.pi - angzen   # rotation de pi pour être dans le domaine
+            angzen = math.pi - angzen   # Rotation de pi pour etre dans le domaine
 
     else:
         angzen = math.pi / 2.

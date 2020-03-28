@@ -567,8 +567,8 @@ for stype in range(1, ntype+1):               # Beginning of the loop over the s
 
         itotty = 0.
 
-        for x_s in range(imin[stype], imax[stype])           # Beginning of the loop over the column (longitude the) of the domain.
-            for y_s in range(jmin[stype], jmax[stype])       # Beginning of the loop over the rows (latitud) of the domain.
+        for x_s in range(imin[stype], imax[stype])           # Beginning of the loop over the column (longitude) of the domain.
+            for y_s in range(jmin[stype], jmax[stype])       # Beginning of the loop over the rows (latitude) of the domain.
                 intdir=0.
                 itotind=0.
                 itodif=0.
@@ -933,201 +933,269 @@ for stype in range(1, ntype+1):               # Beginning of the loop over the s
 # * Section for the calculation of the 2nd scat from the source without reflexion  *
 # ***********************************************************************************
 
+                                                    if ((x_sr == x_s) and (y_sr == y_s)):       # Beginning condition source=reflection for the computation of the source scat line of sight
 
-    if ((x_sr == x_s) and (y_sr == y_s)): # beginning condition source=reflection for the computation of the source scat line of sight
-# Computation of the zenithal angle between the source and the scattering voxel
-# Shadow source-scattering voxel
-        anglezenithal(rx_s,ry_s,z_s,rx_dif,ry_dif,z_dif,angzen)      # computation of the zenithal angle source-scattering voxel.
-        angleazimutal(rx_s,ry_s,rx_dif,ry_dif,angazi)           # computation of the angle azimutal line of sight-scattering voxel
+                                                        # Computation of the zenithal angle between the source and the scattering voxel
+                                                        # Shadow source-scattering voxel
+                                                        anglezenithal(rx_s,ry_s,z_s,rx_dif,ry_dif,z_dif,angzen)      # Computation of the zenithal angle source-scattering voxel.
+                                                        angleazimutal(rx_s,ry_s,rx_dif,ry_dif,angazi)                # Computation of the angle azimutal line of sight-scattering voxel
 
-# Horizon blocking not a matter because some path are downward and most of them closeby
-        hh=1.
-        angmin=pi/2.-atan((obsH[x_s,y_s]+altsol[x_s,y_s)-z_s]/drefle[x_s,y_s])
-        if (angzen < angmin):            # condition obstacle source->scattering.
-            ff=0.
-        else:
-            ff=ofill[x_s,y_s]
+                                                        # Horizon blocking not a matter because some path are downward and most of them closeby
+                                                        hh=1.
+                                                        angmin=pi/2.-atan((obsH[x_s,y_s]+altsol[x_s,y_s)-z_s]/drefle[x_s,y_s])
+                                                        if (angzen < angmin):            # condition obstacle source->scattering.
+                                                            ff=0.
+                                                        else:
+                                                            ff=ofill[x_s,y_s]
 
+                                                        # Computation of the transmittance between the source and the scattering voxel
+                                                        distd = sqrt((rx_s-rx_dif)**2.+(ry_s-ry_dif)**2.+(z_s-z_dif)**2.)
+                                                        transmitm(angzen,z_s,z_dif,distd,transm,tranam)
+                                                        transmita(angzen,z_s,z_dif,istd,transa,tranaa)
 
+                                                        # Computation of the Solid angle of the scattering unit voxel seen from the source
+                                                        omega=1./distd**2.
+                                                        if (omega > omemax):
+                                                            omega=0.
+                                                        anglez=round(180.*angzen/pi)+1
+                                                        P_dif1=pvalno[anglez,stype]
 
-# Computation of the transmittance between the source and the scattering voxel
-        distd = sqrt((rx_s-rx_dif)**2.+(ry_s-ry_dif)**2.+(z_s-z_dif)**2.)       # couleur de la variable ?
-        transmitm(angzen,z_s,z_dif,distd,transm,tranam)
-        transmita(angzen,z_s,z_dif,istd,transa,tranaa)
+                                                        # Computing flux reaching the scattering voxel
+                                                        fldif1=lamplu[x_s,y_s,stype]*P_dif1*omega*transm*transa*(1.-ff)*hh
 
-# Computation of the Solid angle of the scattering unit voxel seen from the source
-        omega=1./distd**2.
-        if (omega > omemax):
-            omega=0.
-        anglez=round(180.*angzen/pi)+1
-        P_dif1=pvalno[anglez,stype]
+                                                        # Computing the scattering probability toward the line of sight voxel
+                                                        if (omega != 0.):
+                                                            angle3points (rx_s,ry_s,z_s,rx_dif,ry_dif,z_dif,rx_c,ry_c,z_c,angdif)      # Scattering angle.
+                                                            diffusion(angdif,tranam,tranaa,un,secdif,fdifan,pdifd1,z_dif)
+                                                        else:
+                                                            pdifd1=0.
+                                                        volu=siz**3.
+                                                        if (volu < 0.):
+                                                            raise ValueError("ERROR, volume 1 is negative!")
 
-# Computing flux reaching the scattering voxel
-        fldif1=lamplu[x_s,y_s,stype]*P_dif1*omega*transm*transa*(1.-ff)*hh
+                                                        # Computing scattered intensity toward the line of sight voxel from the scattering voxel
+                                                        idif1 = fldif1*pdifd1*volu
 
-# Computing the scattering probability toward the line of sight voxel
-        if (omega != 0.):
-            angle3points (rx_s,ry_s,z_s,rx_dif,ry_dif,z_dif,rx_c,ry_c,z_c,angdif)      # scattering angle.
-            diffusion(angdif,tranam,tranaa,un,secdif,fdifan,pdifd1,z_dif)
-        else:
-            pdifd1=0.
-        volu=siz**3.
-        if (volu < 0.):
-            raise ValueError("ERROR, volume 1 is negative!")
+                                                        # Computing zenith angle between the scattering voxel and the line of sight voxel
+                                                        anglezenithal(rx_dif,ry_dif,z_dif,rx_c,ry_c,z_c,angzen)     # Computation of the zenithal angle between the scattering voxel and the line of sight voxel.
+                                                        angleazimutal(rx_dif,ry_dif,rx_c,ry_c,angazi)               # Computation of the azimutal angle surf refl-scattering voxel
 
-# Computing scattered intensity toward the line of sight voxel from the scattering voxel
-        idif1 = fldif1*pdifd1*volu
+                                                        # Subgrid obstacles
+                                                        if ((x_dif < 1) or (x_dif > nbx) or (y_dif < 1) or (y_dif > nbx)):
+                                                            ff=0.
+                                                        else:
+                                                            angmin=pi/2.-atan((obsH[x_dif,y_dif]+altsol[x_dif,y_dif]-z_dif)/drefle[x_dif,y_dif])
+                                                            if (angzen < angmin):       # Condition obstacles scattering->line of sight
+                                                                ff=0.
+                                                            else:
+                                                                ff=ofill[x_dif,y_dif]
+                                                        hh=1.
 
-# Computing zenith angle between the scattering voxel and the line of sight voxel
-        anglezenithal(rx_dif,ry_dif,z_dif,rx_c,ry_c,z_c,angzen)     # computation of the zenithal angle between the scattering voxel and the line of sight voxel.
-        angleazimutal(rx_dif,ry_dif,rx_c,ry_c,angazi)        # computation of the azimutal angle surf refl-scattering voxel
+                                                        # Computing transmittance between the scattering voxel and the line of sight voxel
+                                                        distd=sqrt((rx_c-rx_dif)**2.+(ry_c-ry_dif)**2.+(z_c-z_dif)**2.)
+                                                        transmitm(angzen,z_dif,z_c,distd,transm,tranam)
+                                                        transmita(angzen,z_dif,z_c,distd,transa,tranaa)
 
-# Subgrid obstacles
-        if ((x_dif < 1) or (x_dif > nbx) or (y_dif < 1) or (y_dif > nbx)):
-            ff=0.
-        else:
-            angmin=pi/2.-atan((obsH[x_dif,y_dif]+altsol[x_dif,y_dif]-z_dif)/drefle[x_dif,y_dif])
-            if (angzen < angmin):       # condition obstacles scattering->line of sight
-                ff=0.
-            else:
-                ff=ofill[x_dif,y_dif]
-        hh=1.
+                                                        # Computing the solid angle of the line of sight voxel as seen from the scattering voxel
+                                                        omega=1./distd**2.
+                                                        if (omega > omemax):
+                                                            omega=0.
 
-# Computing transmittance between the scattering voxel and the line of sight voxel
-        distd=sqrt((rx_c-rx_dif)**2.+(ry_c-ry_dif)**2.+(z_c-z_dif)**2.)
-        transmitm(angzen,z_dif,z_c,distd,transm,tranam)
-        transmita(angzen,z_dif,z_c,distd,transa,tranaa)
+                                                            # Computation of the scattered flux reaching the line of sight voxel
+                                                        fldiff=idif1*omega*transm*transa*(1.-ff)*hh
 
-# Computing the solid angle of the line of sight voxel as seen from the scattering voxel
-        omega=1./distd**2.
-        if (omega > omemax):
-            omega=0.
+                                                        # Cloud contribution to the double scattering from a source
+                                                        if (cloudt != 0):                                       # line of sight voxel = cloud
+                                                            if (cloudbase-z_c < iz*scal):
+                                                                anglezenithal(rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,azcl1)      # Zenith angle from cloud to observer
+                                                                anglezenithal(rx_c,ry_c,z_c,x_dif,ry_dif,z_dif,azcl2)       # Zenith angle from source to cloud
+                                                                doc2=(rx_c-rx_obs)**2.+(ry_c-ry_obs)**2.+(z_c-z_obs)**2.
+                                                                dsc2=(rx_dif-rx_c)**2.+(ry_dif-ry_c)**2.+(z_dif-z_c)**2.
+                                                                cloudreflectance(angzen,cloudt,rcloud)
+                                                                icloud=icloud+fldiff/omega*rcloud*doc2*omefov*abs(cos(azcl2)/cos(azcl1))/dsc2/pi
 
-# Computation of the scattered flux reaching the line of sight voxel
-        fldiff=idif1*omega*transm*transa*(1.-ff)*hh
+                                                                # Computation of the scattering probability of the scattered light toward the observer voxel (exiting voxel_c)
+                                                        if (omega != 0.):
+                                                            angle3points(rx_dif,ry_dif,z_dif,rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,angdif)      # Scattering angle
+                                                            diffusion(angdif,tranam,tranaa,un,secdif,fdifan,pdifd2,z_c)                     # Scattering probability of the direct light
+                                                        else:
+                                                            pdifd2=0.
 
-# Cloud contribution to the double scattering from a source
-        if (cloudt != 0):                                       # line of sight voxel = cloud
-            if (cloudbase-z_c < iz*scal):
-                anglezenithal(rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,azcl1)      # zenith angle from cloud to observer
-                anglezenithal(rx_c,ry_c,z_c,x_dif,ry_dif,z_dif,azcl2)       # zenith angle from source to cloud
-                doc2=(rx_c-rx_obs)**2.+(ry_c-ry_obs)**2.+(z_c-z_obs)**2.
-                dsc2=(rx_dif-rx_c)**2.+(ry_dif-ry_c)**2.+(z_dif-z_c)**2.
-                cloudreflectance(angzen,cloudt,rcloud)
-                icloud=icloud+fldiff/omega*rcloud*doc2*omefov*abs(cos(azcl2)/cos(azcl1))/dsc2/pi
+                                                        # Computing scattered intensity toward the observer from the line of sight voxel
+                                                        idiff2 = fldiff*pdifd2              "Pourquoi déclarer deux fois la variable?"
+                                                        idiff2 = idiff2*((stepdi*ndiff)/(ndiff-nss))   # Correct the result for the skipping of 2nd scattering voxels to accelerate the calculation
+                                                        itodif = itodif+idiff2                         # Sum over the scattering voxels
 
-# computation of the scattering probability of the scattered light toward the observer voxel (exiting voxel_c)
-        if (omega != 0.):
-            angle3points(rx_dif,ry_dif,z_dif,rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,angdif)      # scattering angle.
-            diffusion(angdif,tranam,tranaa,un,secdif,fdifan,pdifd2,z_c)
-        else:
-            pdifd2=0.
+                        "Re-vérifier que il ya pas d'erreur d'indentation"
 
-# computing scattered intensity toward the observer from the line of sight voxel
-        idiff2=fldiff*pdifd2
-        idiff2=idiff2*((stepdi*ndiff)/(ndiff-nss))   # Correct the result for the skipping of 2nd scattering voxels to accelerate the calculation
-        itodif=itodif+idiff2                         # Sum over the scattering voxels
-                                                     # end condition source = reflection for the computation of the source scat line of sight
-                                                     # End of the case scattering pos = Source pos or line of sight pos
-                                                     # End diffusing celle underground
-      "Supposé avec une boucle for qqpart + haut ??? "                                          # End of the loop over the scattering voxels.
-                                                     # End of the condition ou effdif > 0
-
+                                                    # End condition source = reflection for the computation of the source scat line of sight
+                                                # End of the case scattering pos = Source pos or line of sight pos
+                                            # End diffusing celle underground
+                                        # End of the loop over the scattering voxels.
+                                    # End of the condition ou effdif > 0
 
 # End of 2nd scattered intensity calculations
-#===================================================================
+#===============================================================================
 #
 #
 #
 # **********************************************************************
-# * section refected light with single scattering
+# *         Section refected light with single scattering              *
 # **********************************************************************
-# verify if there is shadow between sr and line of sight voxel
+# Verify if there is shadow between sr and line of sight voxel
 
-"vérifier les arguments dans les fonctions"
+"Vérifier les arguments dans les fonctions + indentation!"
 
-    anglezenithal(rx_sr,ry_sr,z_sr,rx_c,ry_c,z_c,angzen)  # zenithal angle between the reflecting surface and the line of sight voxel.
-    angleazimutal(rx_sr,ry_sr,rx_c,ry_c,angazi)         # computation of the azimutal angle reflect-line of sight
-    distd=sqrt((rx_sr-rx_c)**2.+(ry_sr-ry_c)**2.+(z_sr-z_c)**2.)
-    dho=sqrt((rx_sr-rx_c)**2.+(ry_sr-ry_c)**2.)
+                                    anglezenithal(rx_sr,ry_sr,z_sr,rx_c,ry_c,z_c,angzen)  # zenithal angle between the reflecting surface and the line of sight voxel.
+                                    angleazimutal(rx_sr,ry_sr,rx_c,ry_c,angazi)         # computation of the azimutal angle reflect-line of sight
+                                    distd=sqrt((rx_sr-rx_c)**2.+(ry_sr-ry_c)**2.+(z_sr-z_c)**2.)
+                                    dho=sqrt((rx_sr-rx_c)**2.+(ry_sr-ry_c)**2.)
 
-    if (angzen > pi/4.):         # 45deg. it is unlikely to have a 1km high mountain less than 1
-        horizon(x_sr,y_sr,z_sr,dx,dy,altsol,angazi,zhoriz,dh)
-        if (dh < = dho):
-            if (angzen < zhoriz):    # the path line of sight-reflec is not below the horizon => we compute
-                hh=1.
-            else:
-                hh=0.
-            # end condition reflecting surf. above horizon
-        else:
-            hh=1.
-    else:
-        hh=1.
+                                    if (angzen > pi/4.):         # 45deg. it is unlikely to have a 1km high mountain less than 1
+                                        horizon(x_sr,y_sr,z_sr,dx,dy,altsol,angazi,zhoriz,dh)
+                                        if (dh < = dho):
+                                            if (angzen < zhoriz):    # the path line of sight-reflec is not below the horizon => we compute
+                                                hh=1.
+                                            else:
+                                                hh=0.
+                                            # end condition reflecting surf. above horizon
+                                        else:
+                                            hh=1.
+                                    else:
+                                        hh=1.
 
-irefl=irefl1
-
-
-# case: line of sight position = Position of reflecting cell
-if((rx_c == rx_sr) and (ry_c == ry_sr) and (z_c == z_sr)):
-    intind=0.
-else:
-
-# obstacle
-    angmin=pi/2.-atan(obsH[x_sr,y_sr]/drefle[x_sr,y_sr])
-    if (angzen < angmin):       # condition obstacle reflected.
-        ff=0.
-    else:
-        ff=ofill[x_sr,y_sr]
-
-# Computation of the transmittance between the ground surface and the line of sight voxel
-    transmitm(angzen,z_sr,z_c,distd,transm,tranam)
-    transmita(angzen,z_sr,z_c,distd,transa,tranaa)
-
-# Computation of the solid angle of the line of sight voxel seen from the reflecting cell
-    omega=1./distd**2.
-    if (omega > omemax):
-        omega=0.
-
-# Computation of the flux reflected reaching the line of sight voxel
-    flindi=irefl*omega*transm*transa*(1.-ff)*hh               # obstacles correction
-
-# Cloud contribution to the reflected light from a ground pixel
-    if (cloudt != 0):           # line of sight voxel = cloud
-        if (cloudbase-z_c <= iz*scal):
-            anglezenithal(rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,azcl1)              # zenith angle from cloud to observer
-            anglezenithal(rx_c,ry_c,z_c,rx_sr,ry_sr,z_sr,azcl2)                 # zenith angle from source to cloud
-            doc2=(rx_c-rx_obs)**2.+(ry_c-ry_obs)**2.+(z_c-z_obs)**2.
-            dsc2=(rx_sr-rx_c)**2.+(ry_sr-ry_c)**2.+(z_sr-z_c)**2.
-            cloudreflectance(angzen,cloudt,rcloud)              # cloud intensity from direct illum
-            icloud=icloud+flindi/omega*rcloud*doc2*omefov*abs(cos(azcl2)/cos(azcl1))/dsc2/pi
-
-# Computation of the scattering probability of the reflected light
-    if (omega. != 0.):
-        angle3points(rx_sr,ry_sr,z_sr,rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,angdif)     # scattering angle.
-        diffusion(angdif,tranam,tranaa,un,secdif,fdifan,pdifin,z_c)
-    else:
-        pdifin=0.
-
-# Computation of the reflected intensity toward the sensor by a reflecting cell
-    intind=flindi*pdifin*(1.-ff)*hh
-                                        #endif                             ! end of the case Posi reflecting cell =  line of sight voxel position
-itotind=itotind+intind            ! Sum of the intensities of each reflecting cell.
-#                                      endif                               ! end of the condition surface not lighted from the top.
-#                                  endif                                   ! end of the condition reflecting cell is not on the source.
-#                                endif                                     ! end of the condition surface of the domain.
-
-#                              enddo                                       ! end of the loop over the rows (latitu) reflecting.
-#                            enddo                                         ! end of the loop over the column (longitude) reflecting.
-#   end of the computation of the reflected intensity
+                                    irefl=irefl1
 
 
-# ***********************************************************************
-# Computation of the luminous flux reaching the observer
-# ***********************************************************************
-# Computation of the zenithal angle between the observer and the line of sight voxel
-# ======================================================================
- anglezenithal(rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,angzen)          # computation of the zenithal angle between the line of sight voxel and the observer.
-                                                                  # end of the case "observer at the same latitu/longitude than the source".
+                                # Case: line of sight position = Position of reflecting cell
+                                if((rx_c == rx_sr) and (ry_c == ry_sr) and (z_c == z_sr)):
+                                    intind=0.
+                                else:
+
+                                # Obstacle
+                                    angmin=pi/2.-atan(obsH[x_sr,y_sr]/drefle[x_sr,y_sr])
+                                    if (angzen < angmin):       # condition obstacle reflected.
+                                        ff=0.
+                                    else:
+                                        ff=ofill[x_sr,y_sr]
+
+                                # Computation of the transmittance between the ground surface and the line of sight voxel
+                                    transmitm(angzen,z_sr,z_c,distd,transm,tranam)
+                                    transmita(angzen,z_sr,z_c,distd,transa,tranaa)
+
+                                # Computation of the solid angle of the line of sight voxel seen from the reflecting cell
+                                    omega=1./distd**2.
+                                    if (omega > omemax):
+                                        omega=0.
+
+                                # Computation of the flux reflected reaching the line of sight voxel
+                                    flindi=irefl*omega*transm*transa*(1.-ff)*hh               # Obstacles correction
+
+                                # Cloud contribution to the reflected light from a ground pixel
+                                    if (cloudt != 0):           # line of sight voxel = cloud
+                                        if (cloudbase-z_c <= iz*scal):
+                                            anglezenithal(rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,azcl1)              # zenith angle from cloud to observer
+                                            anglezenithal(rx_c,ry_c,z_c,rx_sr,ry_sr,z_sr,azcl2)                 # zenith angle from source to cloud
+                                            doc2=(rx_c-rx_obs)**2.+(ry_c-ry_obs)**2.+(z_c-z_obs)**2.
+                                            dsc2=(rx_sr-rx_c)**2.+(ry_sr-ry_c)**2.+(z_sr-z_c)**2.
+                                            cloudreflectance(angzen,cloudt,rcloud)              # cloud intensity from direct illum
+                                            icloud=icloud+flindi/omega*rcloud*doc2*omefov*abs(cos(azcl2)/cos(azcl1))/dsc2/pi
+
+                                # Computation of the scattering probability of the reflected light
+                                    if (omega. != 0.):
+                                        angle3points(rx_sr,ry_sr,z_sr,rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,angdif)     # Scattering angle.
+                                        diffusion(angdif,tranam,tranaa,un,secdif,fdifan,pdifin,z_c)                 # Scattering probability of the reflected light
+                                    else:
+                                        pdifin=0.
+
+                                # Computation of the reflected intensity toward the sensor by a reflecting cell
+                                    intind = flindi*pdifin*(1.-ff)*hh
+
+
+                                # End of the case Posi reflecting cell =  line of sight voxel position
+                                itotind = itotind+intind            # Sum of the intensities of each reflecting cell.
+
+
+"Semble avoir une erreur d'indentation"
+
+                                    # End of the condition surface not lighted from the top.
+
+                                # End of the condition reflecting cell is not on the source.
+
+                            # End of the condition surface of the domain.
+
+                        # End of the loop over the rows (latitude) reflecting.
+
+                    # End of the loop over the column (longitude) reflecting.
+
+
+# *********************************************************************************************************
+# * Computation of the total intensity coming from a source to the line of sight voxel toward the sensor  *
+# *********************************************************************************************************
+# In the order 1st scat; refl->1st scat; 1st scat->2nd scat,
+# refl->1st scat->2nd scat
+
+                    isourc = intdir+itotind+itodif+itotrd         # Sum of the intensities of a given type of source reaching the line of sight voxel.
+                    isourc = isourc*scal                          # Scaling the values according to the path length in the l. of sight voxel of 1m3
+                    isourc = isourc*portio                        # Correct for the field of view of the observer
+                    isourc = isourc+icloud                        # Include clouds in the total intensity
+
+
+                    if ((itodif < 0.) or (itotrd < 0.)):
+                        raise ValueError("ERREUR dans les valeurs: ", ntdir,itotind,itodif,itotrd)
+
+                    if (verbose == 2):
+                        print(' Total intensity per component for type ',ntype,':')
+                        print(' Source->scattering=',intdir)
+                        print(' Source->reflexion->scattering=',itotind)
+                        print(' Source->scattering->scattering=',itodif)
+                        print(' Source->reflexion->scattering->scattering=',itotrd)
+
+                        if (intdir*itotind*itodif*itotrd < 0.):
+                            raise ValueError('PROBLEM! Negative intensity.')
+
+
+# ***********************************************************************************
+# * Computation of the total intensity coming from all the sources of a given type  *
+# ***********************************************************************************
+
+                    itotty = itotty+isourc                              # Sum of the intensities all sources of the same typeand a given line of sight element
+                    ITT[x_s,y_s,stype] = ITT[x_s,y_s,stype]+isourc      # ITT stores itotty in a matrix
+
+
+                # End of the condition "the luminosity of the ground pixel x_s,y_s in not null".
+            # End the loop over the lines (latitude) of the domain (y_s).
+        # End the loop over the column (longitude) of the domain (x_s).
+
+
+# End of the computation of the intensity of one source type
+        itotci = itotci+itotty                          # Sum of the intensities all source all type to a line of sight element
+
+        for x_s in range(imin(stype),imax(stype)):
+            for y_s in range (jmin(stype),jmax(stype)):
+                ITC[x_s,y_s] = ITC[x_s,y_s]+ITT[x_s,y_s,stype]
+
+
+# Calculate total lamp flux matrix for all lamp types
+        for x_s in range(1,nbx+1):
+            for y_s in rnage(1,nby+1):
+                lpluto[x_s,y_s] = lpluto[x_s,y_s]+lamplu[x_s,y_s,stype]
+
+
+    # End of condition if there are any flux in that source type
+# End of the loop over the types of sources (stype).
+
+
+# End of the computation of the intensity coming from a line of sight voxel toward the sensor
+
+# ======================================================================================
+# * Computation of the luminous flux reaching the observer                             *
+# **************************************************************************************
+# * Computation of the zenithal angle between the observer and the line of sight voxel *
+# ======================================================================================
+
+anglezenithal(rx_c,ry_c,z_c,rx_obs,ry_obs,z_obs,angzen)          # Computation of the zenithal angle between the line of sight voxel and the observer.
+                                                                 # End of the case "observer at the same latitu/longitude than the source".
 
 
 # Computation of the transmittance between the line of sight voxel and the observer
@@ -1135,37 +1203,41 @@ distd=sqrt((rx_c-rx_obs)**2.+(ry_c-ry_obs)**2.+(z_c-z_obs)**2.)
 transmitm(angzen,z_c,z_obs,distd,transm,tranam)
 transmita(angzen,z_c,z_obs,distd,transa,tranaa)
 
+
 # Computation of the flux reaching the objective of the telescope from the line of sight voxel
-fcapt=itotci*ometif*transa*transm                     # computation of the flux reaching the intrument from the line of sight voxel
-for x_s in range(1, nbx):
-    for y_s in range(1, nby):
-        FCA[x_s,y_s]=ITC[x_s,y_s]*ometif*transa*transm
+fcapt = itotci*ometif*transa*transm                     # Computation of the flux reaching the intrument from the line of sight voxel
+for x_s in range(1, nbx+1):
+    for y_s in range(1, nby+1):
+        FCA[x_s,y_s] = ITC[x_s,y_s]*ometif*transa*transm
 
 if (cos(pi-angzen) == 0.):
     raise ValueError("ERROR perfectly horizontal sight is forbidden")
+# End of the computation of the flux reaching the observer voxel from the line of sight voxel
 
 
-# end of the computation of the flux reaching the observer voxel from the line of sight voxel
-ftocap=ftocap+fcapt                            # flux for all source all type all line of sight element
-for x_s in range(1, nbx):
-    for y_s in range(1, nby):
+ftocap = ftocap+fcapt                            # Flux for all source all type all line of sight element
+for x_s in range(1, nbx+1):
+    for y_s in range(1, nby+1):
         FTC[x_s,y_s] = FTC[x_s,y_s]+FCA[x_s,y_s]       # FTC is the array of the flux total at the sensor to identify
                                                        # the contribution of each ground pixel to the total flux at the observer level
                                                        # The % is simply given by the ratio FTC/ftocap
 
-# correction for the FOV to the flux reaching the intrument from the cloud voxel
+
+# Correction for the FOV to the flux reaching the intrument from the cloud voxel
 if (cloudt != 0):
 
-# computation of the flux reaching the intrument from the cloud voxel
-    fccld=icloud*ometif*transa*transm
-    fctcld=fctcld+fccld                                # Cloud flux for all source all type all line of sight element
+# Computation of the flux reaching the intrument from the cloud voxel
+    fccld = icloud*ometif*transa*transm
+    fctcld = fctcld+fccld                       # Cloud flux for all source all type all line of sight element
+
 
 if (verbose >= 1):
-    print('Added radiance =',fcapt/omefov/(pi*(diamobj/2.)**2.)
+    print('Added radiance =',fcapt/omefov/(pi*(diamobj/2.)**2.)                             "Pourquoi plein de if pour la même condition?"
 if (verbose >= 1):
     print('Radiance accumulated =',ftocap/omefov/(pi*(diamobj/2.)**2.)
+
 if (verbose >= 1):
-#    write(2,*) 'Added radiance =',fcapt/omefov/(pi*(diamobj/2.)**2.)
+#    write(2,*) 'Added radiance =',fcapt/omefov/(pi*(diamobj/2.)**2.)                           " Vérifier on write dans quel fichier?"
 if (verbose >= 1):
 #     write(2,*) 'Radiance accumulated =',ftocap/omefov/(pi*(diamobj/2.)**2.)
         # end of the condition line of sight voxel inside the modelling domain
@@ -1173,18 +1245,21 @@ if (verbose >= 1):
 
 "Vérifier endif et indentation"
 
-#          if (icible.eq.6) stop    --> qu'est-ce que cela représente?
 
 # Accelerate the computation as we get away from the sources
+
 scalo=scal
-scal=scal*1.05
-        #    enddo                                                             ! end of the loop over the line of sight voxels.
+if (scal <= 3000.):
+    scal = scal*1.12
+
+"Il doit y avoir une erreur d'indentation !!!"
+#    enddo                                                       ! end of the loop over the line of sight voxels.
+
 if (prmaps == 1):
 """    open(unit=9,file=pclf,status='unknown')"""
-
-    for x_s in range(1, nbx):
-        for y_s in range(1, nby):
-            FTC[x_s,y_s] = FTC[x_s,y_s]/ftocap                     # Here FTC becomes the flux fraction of each pixel. The sum of FTC values over all pixels give the total flux
+    for x_s in range(1, nbx+1):
+        for y_s in range(1, nby+1):
+            FTC[x_s,y_s] = FTC[x_s,y_s]/ftocap           # Here FTC becomes the flux fraction of each pixel. The sum of FTC values over all pixels give the total flux
 
     if (verbose == 2):
         print('Writing normalized contribution array')
@@ -1192,8 +1267,43 @@ if (prmaps == 1):
 
     for x_s in range(1,nbx):
         for y_s in range(1,nby):
-            write(9,*) x_s,y_s,FTC(x_s,y_s)                           ! emettrice au sol, c'est un % par unite of watt installes
-              enddo
-            enddo
-            call twodout(nbx,nby,pclimg,FTC)
-          close(unit=9)
+"            write(9,*) x_s,y_s,FTC(x_s,y_s)       "                    ! emettrice au sol, c'est un % par unite of watt installes
+
+
+    "Demander à Alex pour la fonction inverse"
+#    twodout(nbx,nby,pclimg,FTC)
+    # close(unit=9)
+
+
+# Creation of gnuplot file. To visualize, type gnuplot and then
+" load 'BASENAME_pcl.gplot'
+""" open(unit=9,file=pclgp,status='unknown')
+
+    write(9,*) 'sand dgrid3d',nbx,',',nby
+    write(9,*) 'sand hidden3d'
+    write(9,*) 'sand pm3d'
+    write(9,*) 'splot "'//basenm(1:lenbase)//'_pcl.txt" with dots' "
+    close(unit=9)"""
+# End of condition for creating contrib and sensit maps
+
+
+if (verbose >= 1):
+    print('====================================================='
+    print('              Sky radiance (W/str/m**2)')
+"   write(*,2001) (ftocap+fctcld)/omefov/(pi*(diamobj/2.)**2.)   "
+
+    if (verbose >= 1):
+"""     write(2,*) '====================================================='
+        write(2,*) '            Sky radiance (W/str/m**2)          '
+        write(2,2001) (ftocap+fctcld)/omefov/(pi*(diamobj/2.)**2.)
+      close(2)
+ 2001 format('                   ',E10.3E2)
+      stop
+      end"""
+
+
+# ***********************************************************************************************************************
+# *                                                                                                                     *
+# *                                              End of the programme                                                   *
+# *                                                                                                                     *
+# ***********************************************************************************************************************

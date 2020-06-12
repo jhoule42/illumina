@@ -12,6 +12,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
+    
  **      http://cegepsherbrooke.qc.ca/~aubema/index.php/Prof/IllumEn?action=download&upname=intensite_lumineuse.pdf  **
 ================================================================================
 Statut : Fonctionnel --> comparer a .f

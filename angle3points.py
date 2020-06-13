@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
-Statut : Fonctionnel --> comparer a .f
+Statut : Fonctionnel (petite marge erreur)
 ======================================================================="""
 
 from math import sqrt, pi, acos
@@ -35,21 +35,22 @@ def angle3points(x1,y1,z1,x2,y2,z2,x3,y3,z3):
     yv=y3-y2
     zv=z3-z2
 
+
     if (xv == 0.) and (yv == 0) and (zv == 0):
-        ValueError("Erreur vecteur de sortie nul")
+        raise ValueError("Erreur vecteur de sortie nul")
         print(x1,y1,z1,x2,y2,z2,x3,y3,z3)
 
-    if (xu == 0.) and (yu == 0.) and (zu == 0.):
-        ValueError("Erreur vecteur de sortie nul")
+    if (xu == 0) and (yu == 0) and (zu == 0):
+        raise ValueError("Erreur vecteur d'entree nul")
         print(x1,y1,z1,x2,y2,z2,x3,y3,z3)
 
     argume = ((xu*xv) + (yu*yv) + (zu*zv)) / (sqrt(xu**2.+ yu**2.+ zu**2.)* sqrt(xv**2.+yv**2.+zv**2.))
 
-    if (argume > 1):
+    if (argume >= 1):
         an3pts = 0.
 
-    elif (argume < -1):
-        an3pts = pi()
+    elif (argume <= -1):
+        an3pts = pi
 
     else:
         an3pts = acos(argume)
@@ -59,4 +60,4 @@ def angle3points(x1,y1,z1,x2,y2,z2,x3,y3,z3):
 
     return an3pts
 
-print(angle3points(1, 3, 2, 3, 2, 1, 2, 3, 2))
+print(angle3points(2.0, 4.0, 3.0, 2.0, 3.0, 16.0, 9.0, 1.0, 7.0))

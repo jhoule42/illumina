@@ -8,9 +8,9 @@ c  Determine l'angle entre 3 points (x1,y1,z1), (x2,y2,z2) et (x3,y3,z3)
 c  dont le sommet est au point 2
 c  Retourne l'angle angle en radians
 c
-c  pour utilisation avec Illumina 
+c  pour utilisation avec Illumina
 c-----------------------------------------------------------------------
-c   
+c
 c    Copyright (C) 2009  Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -29,18 +29,34 @@ c
 c    Contact: martin.aube@cegepsherbrooke.qc.ca
 c
 c
-      subroutine angle3points(x1,y1,z1,x2,y2,z2,x3,y3,z3,
-     +                         an3pts)
+c      subroutine angle3points(x1,y1,z1,x2,y2,z2,x3,y3,z3,
+c     +                         an3pts)
+
+
       real x1,y1,x2,y2,x3,y3
       real z1,z2,z3,an3pts,argume
       real xu,yu,zu,xv,yv,zv,dx,dy,pi,comp
       parameter (pi = 3.1415926)
+
+
+      x1 = 2
+      y1 = 4
+      z1 = 3
+      x2 = 2
+      y3 = 3
+      z2 = 16
+      x3 = 9
+      y3 = 1
+      z3 = 7
+
+
       xu=x2-x1                                                            ! Voici les composantes du vecteur u.
       yu=y2-y1
       zu=z2-z1
       xv=x3-x2                                                            ! Voici les composantes du vecteur v.
       yv=y3-y2
       zv=z3-z2
+
       if ((xv.eq.0.).and.(yv.eq.0.).and.(zv.eq.0.)) then
          print*,'ERREUR vecteur sortie nul'
          print*,x1,y1,z1,x2,y2,z2,x3,y3,z3
@@ -59,11 +75,13 @@ c
          comp=pi
       else
          comp=acos(argume)
-      endif 
+      endif
       an3pts=comp
       if (an3pts.lt.0.) then
          print*,'ERREUR an3pts < 0'
          stop
       endif
-      return
+
+
+      print*, an3pts
       end

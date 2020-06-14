@@ -1,7 +1,7 @@
 c **      http://cegepsherbrooke.qc.ca/~aubema/index.php/Prof/IllumEn?action=download&upname=intensite_lumineuse.pdf  **
 c **                                                                                                                  **
 c **********************************************************************************************************************
-c   
+c
 c    Copyright (C) 2015 Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ c
 c
 c2345678901234567890123456789012345678901234567890123456789012345678901234
 c
-      subroutine cloudreflectance(angzen,cloudt,rcloud)
+c      subroutine cloudreflectance(angzen,cloudt,rcloud)
 c
 c=======================================================================
 c     Variables declaration
@@ -30,13 +30,22 @@ c=======================================================================
       integer cloudt
 c  fitted parameters for the cloud reflectance as a function of the incident zenith angle
 c  rho(z)=a0+a1*cos z + a2 * cos^2 z + a3 * cos^3 z according to Shapiro 1982 Table 10
+c cloud no 1 are thin cirrus & cirrostratus
+c cloud no 2 are thick cirrus & cirrostratus
+c cloud no 3 are altostratus & altocumulus
+c cloud no 4 are stratocumulus & stratus
+c cloud no 5 are cumulus & cumulonimbus
+
       real rhocld(5,4)
-      real angzen,rcloud                                               
+      real angzen,rcloud
+
+      angzen = 1.15
+      cloudt = 0
 
       rhocld(1,1)=0.25674
       rhocld(1,2)=-0.18077
       rhocld(1,3)=-0.21961
-      rhocld(1,4)=-0.25272
+      rhocld(1,4)=0.25272
       rhocld(2,1)=0.60540
       rhocld(2,2)=-0.55142
       rhocld(2,3)=-0.23389
@@ -56,7 +65,7 @@ c  rho(z)=a0+a1*cos z + a2 * cos^2 z + a3 * cos^3 z according to Shapiro 1982 Ta
        rcloud=rhocld(cloudt,1)+rhocld(cloudt,2)*cos(angzen)
      + +rhocld(cloudt,3)*(cos(angzen))**2.+rhocld(cloudt,4)*
      + (cos(angzen))**3.
-c        print*,rcloud,angzen,cos(angzen)
-      return
-      end
 
+      print*,rcloud,angzen,cos(angzen)
+c      return
+      end

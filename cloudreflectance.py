@@ -14,7 +14,7 @@
     Contact: martin.aube@cegepsherbrooke.qc.ca
  **      http://cegepsherbrooke.qc.ca/~aubema/index.php/Prof/IllumEn?action=download&upname=intensite_lumineuse.pdf  **
 ================================================================================
-Statut : Fonctionnel --> comparer a .f
+Statut : Fonctionnel (petite marge d'erreur)
 ================================================================================"""
 
 #--------------------------------------
@@ -65,4 +65,4 @@ def cloudreflectance(angzen, cloud):
     print("rcloud:", rcloud, "angzen:", angzen, "cos(angzen)", cos(angzen))
 
 
-print(cloudreflectance(1.52, 0))
+print(cloudreflectance(1.15, 0))

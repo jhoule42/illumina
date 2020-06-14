@@ -12,7 +12,7 @@ c  Retourne la probabilite de diffusion pdif
 c
 c  pour utilisation avec Illumina
 c-----------------------------------------------------------------------
-c   
+c
 c    Copyright (C) 2009  Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -31,18 +31,27 @@ c
 c    Contact: martin.aube@cegepsherbrooke.qc.ca
 c
 c
-      subroutine diffusion (angdif,tranam,tranaa,un,secdif,
-     +   fonc_a,pdif,altit)
-      real angdif,pdif,prob_a,prob_m,secdif 
+c      subroutine diffusion(angdif,tranam,tranaa,un,secdif,
+c     +   fonc_a,pdif,altit)
+
+      real angdif,pdif,prob_a,prob_m,secdif
       real fctmol,pi,fonc_a(181),fonc_ae
       real angdeg,tranam,tranaa
       real altit,un
       integer rang,na,naz
       parameter (pi=3.1415926)
+
+      angdif = 2.0
+      tranam = 0.62
+      tranaa = 0.22
+      un = 1.0
+      secdif = 0.05
+      fonc_a = 0.65
+      altit = 242.0
+
+
 c--------------------------------------------------------
-c   Calcul et normalisation des fonctions de diffusion
-c--------------------------------------------------------      
-      if (angdif.lt.0.) angdif=-angdif      
+      if (angdif.lt.0.) angdif=-angdif
       if (angdif-pi.gt.0.00001) angdif=pi
       angdeg=((angdif*180.)/pi)
       rang=int(angdeg)+1
@@ -50,18 +59,20 @@ c=======================================================================
 c        Calcul de la fonction d'emission de la source vers la cible
 c=======================================================================
       fonc_ae=fonc_a(rang)
+      print*, fonc_a
+      print*, fonc_ae
       fctmol=0.75*(1.+((cos(angdif))**2.))/(4.*pi)
 c----------------------------------------
-c  Calcul des probabilites de diffusion par unite d'angle solide 
-c----------------------------------------    
+c  Calcul des probabilites de diffusion par unite d'angle solide
+c----------------------------------------
 c      prob_a=(1.-tranaa)*exp(-1.*altit/2000.)*distd*secdif*fonc_ae        ! Les fonctions utilisees ici sont deja normalisees
 c     +/2000.
-c      prob_m=(1.-tranam)*exp(-1.*altit/8000.)*distd*fctmol/8000.               ! Fonc_ae normalisee dans le MAIN, fctmol dans la routine (voir 
+c      prob_m=(1.-tranam)*exp(-1.*altit/8000.)*distd*fctmol/8000.               ! Fonc_ae normalisee dans le MAIN, fctmol dans la routine (voir
 c                                                                         ! la division par 4 pi).
 
       prob_a=(1.-exp(log(tranaa)*exp(-1.*altit/2000.)*un/2000.))*        ! Les fonctions utilisees ici sont deja normalisees
      +secdif*fonc_ae
-      prob_m=(1.-exp(log(tranam)*exp(-1.*altit/8000.)*un/8000.))*               ! Fonc_ae normalisee dans le MAIN, fctmol dans la routine (voir 
+      prob_m=(1.-exp(log(tranam)*exp(-1.*altit/8000.)*un/8000.))*               ! Fonc_ae normalisee dans le MAIN, fctmol dans la routine (voir
      +fctmol                                                                    ! la division par 4 pi).
 
       pdif = prob_a+prob_m                                                ! Ce calcul est approximatif et bon seulement si 1-transa et
@@ -81,7 +92,7 @@ c                                                                         ! la d
       if (prob_m.lt.0.) then
          print*,'prob_m`¸^<0..'
          stop
-      endif      
+      endif
       if (pdif.gt.1.) then
          print*,'prob>1.',pdif,prob_a,prob_m,tranaa,tranam,altit,distd,
      +omega,omega*prob_a
@@ -91,8 +102,12 @@ c                                                                         ! la d
          print*,'prob<0.',pdif,prob_a,prob_m
          stop
       endif
-       
+
 c      if (pdif.gt.1.) pdif=1.
 
-      return
+c      return
+
+      print*, prob_a
+      print*, prob_m
+      print*, pdif
       end

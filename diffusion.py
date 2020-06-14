@@ -31,24 +31,25 @@ from math import pi, cos, exp, log
 
 def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
 
-#--------------------------------------------------------
-#  Calcul et normalisation des fonctions de diffusion
-#--------------------------------------------------------
+    """ Calcul et normalisation des fonctions de diffusion"""
+
 
     if (angdif < 0.):
         angdif = -angdif
     if (angdif - pi > 0.00001):
         angdif = pi
     angdeg = ((angdif*180.)/pi)
-    rang = angdeg + 1
+    rang = int(angdeg + 1)
 
 #=======================================================================
 #        Calcul de la fonction d'emission de la source vers la cible
 #=======================================================================
 
-    fonc_a = np.zeros((181))
+    fonc_a = np.zeros((180))
+    print("fonc_a", fonc_a)
     fonc_ae = fonc_a[rang]       # fonc_ae est une liste de 181 elements ou de size(rang)
-    fctmol = 0.75 * (1.+((cos((angdif))**2.)) / (4.*pi)
+    print("fonc_ae", fonc_ae)
+    fctmol = 0.75 * (1.+((cos((angdif))**2.)) / (4.*pi))
 
 #---------------------------------------------------------------------
 #  Calcul des probabilites de diffusion par unite d'angle solide
@@ -56,7 +57,9 @@ def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
 
     # Les fonctions utilisees ici sont deja normalisees
     prob_a = (1.-exp(log(tranaa) * exp(-1.*altit/2000.) * un/2000.))*secdif * fonc_ae
+    print("prob_a", prob_a)
     prob_m = (1.-exp(log(tranam) * exp(-1.*altit/8000.) * un/8000.))* fctmol
+    print("prob_m", prob_m)
 
     # Fonc_ae normalisee dans le MAIN, fctmol dans la routine (voir la division par 4 pi)
     pdif = prob_a+prob_m                  # Ce calcul est approximatif et bon seulement si 1-transa et  1-transm sont tres petits.
@@ -83,4 +86,4 @@ def diffusion(angdif, tranam, tranaa, un, secdif, fonc_a, altit):
 
     return pdif
 
-print(diffusion(1, 0.32, 0.12, 1,32, 5, 2))
+print(diffusion(2.0, 0.62, 0.22, 1.0 , 0.05, 0.65, 242.0))

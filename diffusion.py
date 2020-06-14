@@ -22,7 +22,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
-Statut: Demander questions a Martin
+Statut: Demander questions a Martin --> fonc_a semble tjrs vide
 ======================================================================="""
 
 

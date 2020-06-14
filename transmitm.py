@@ -23,7 +23,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
-Statut : Fonctionnel --> comparer à .f
+Statut : Fonctionnel
 ======================================================================="""
 
 # transmitance des molécules
@@ -53,4 +53,4 @@ def transmitm(angz, z_i, z_f, distd, tranam):
 
     return transm
 
-#print(transmitm(10000, 2, 43, 2, 24))   # VÉRIFIER QUELLE VALEUR METTRE POUR PAS AVOIR D'ERREUR
+print(transmitm(1.5, 40, 43, 20, 0.49))   # VÉRIFIER QUELLE VALEUR METTRE POUR PAS AVOIR D'ERREUR

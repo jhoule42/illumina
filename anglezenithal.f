@@ -7,9 +7,9 @@ c
 c  Determine l'angle zenithal entre les points (x1,y1,z1) et (x2,y2,z2)
 c  Retourne l'angle angzen en radians
 c
-c  pour utilisation avec Illumina 
+c  pour utilisation avec Illumina
 c-----------------------------------------------------------------------
-c   
+c
 c    Copyright (C) 2009  Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -28,10 +28,18 @@ c
 c    Contact: martin.aube@cegepsherbrooke.qc.ca
 c
 c
-      subroutine anglezenithal(x1,y1,z1,x2,y2,z2,angzen) 
+c      subroutine anglezenithal(x1,y1,z1,x2,y2,z2,angzen)
       real x1,y1,x2,y2
-      real z1,z2,pi,angzen                                                    
-      parameter (pi=3.1415926)   
+      real z1,z2,pi,angzen
+      parameter (pi=3.141592654)
+
+      x1 = 43
+      y1 = 32
+      z1 = 31
+      x2 = 48
+      y2 = 54
+      z2 = 64
+
       hdist=sqrt((x2-x1)**2.
      a    +(y2-y1)**2.)
       if (z2-z1.ne.0.) then
@@ -44,5 +52,7 @@ c
         print*,'ERREUR angzen2=',angzen
         stop
       endif
-      return
-      end 
+c      return
+
+      print*, angzen
+      end

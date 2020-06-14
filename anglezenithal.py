@@ -20,13 +20,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
-** Fonctionnel --> comparer a .f
+** Fonctionnel
 ======================================================================="""
 
 
 import math
 
-def anglezenithal(x1, y1, x2, y2, z1, z2):
+def anglezenithal(x1, y1, z1, x2, y2, z2):
 
     hdist = math.sqrt((x2-x1)**2. + (y2-y1)**2.)    # pythagore
 
@@ -45,4 +45,4 @@ def anglezenithal(x1, y1, x2, y2, z1, z2):
     return angzen
 
 
-print(anglezenithal(12,23,43,12,12,12))
+print(anglezenithal(43,32,31,48,54,64))

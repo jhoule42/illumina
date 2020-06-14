@@ -1,7 +1,8 @@
+
 c **      http://cegepsherbrooke.qc.ca/~aubema/index.php/Prof/IllumEn?action=download&upname=intensite_lumineuse.pdf  **
 c **                                                                                                                  **
 c **********************************************************************************************************************
-c   
+c
 c    Copyright (C) 2015 Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -22,7 +23,7 @@ c
 c
 c2345678901234567890123456789012345678901234567890123456789012345678901234
 c
-      subroutine cloudtransmitance(angzen,cloudt,tcloud)
+c    subroutine cloudtransmitance(angzen,cloudt,tcloud)
 c
 c=======================================================================
 c     Variables declaration
@@ -31,7 +32,10 @@ c=======================================================================
 c  fitted parameters for the cloud reflectance as a function of the incident zenith angle
 c  rho(z)=b0+b1*cos z + b2 * cos^2 z + b3 * cos^3 z according to Shapiro 1982 Table 11
       real thocld(5,4)
-      real angzen,tcloud                                               
+      real angzen,tcloud
+
+      angzen = 1.15
+      cloudt = 5
 
       thocld(1,1)=0.63547
       thocld(1,2)=0.35229
@@ -56,7 +60,8 @@ c  rho(z)=b0+b1*cos z + b2 * cos^2 z + b3 * cos^3 z according to Shapiro 1982 Ta
        tcloud=thocld(cloudt,1)+thocld(cloudt,2)*cos(angzen)
      + +thocld(cloudt,3)*(cos(angzen))**2.+thocld(cloudt,4)*
      + (cos(angzen))**3.
-c        print*,rcloud,angzen,cos(angzen)
-      return
-      end
 
+      print*,tcloud,angzen,cos(angzen)
+
+c      return
+      end

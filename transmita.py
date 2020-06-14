@@ -23,7 +23,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
  =======================================================================
-** Fonctionnel --> comparer à .f
+** Fonctionnel
  ======================================================================="""
 
 

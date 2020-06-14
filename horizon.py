@@ -59,7 +59,6 @@ def horizon(x, y, z, dx, dy, anga):
         if (zout < zhoriz):                 # zout vs zhoriz signification?
             zhoriz = zout
 
-    return zhoriz, d, zout    # retourner zout ?
-
+    return zhoriz, d
 
 print(horizon(100, 55, 5, 20, 25, 3))   # ERREUR: changer les valeurs des parametres ne change pas la valeur

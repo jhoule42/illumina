@@ -3,19 +3,19 @@ c
 c=======================================================================
 c Routine transmita (Andre Morin, Alex Neron, Etienne Rousseau 2004)
 c
-c Determine la transmittance des aerosols sur un parcours entre les 
+c Determine la transmittance des aerosols sur un parcours entre les
 c cellules (x_i,y_i,z_i) et (x_f,y_f,z_f)
 c Est fonction de l'epaisseur optique des aerosols
 c Recoit des longueurs d'ondes en nanometre et les transforme en microns.
 c La pression doit etre en KPa
 c Retourne la transmittance transa
 c
-c  *** J'ai valide le calcul zenith tout atm avec modtran et 
+c  *** J'ai valide le calcul zenith tout atm avec modtran et
 c      cela concorde M. Aubé mars 2010
 c
-c pour utilisation avec Illumina 
+c pour utilisation avec Illumina
 c-----------------------------------------------------------------------
-c   
+c
 c    Copyright (C) 2009  Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -34,12 +34,19 @@ c
 c    Contact: martin.aube@cegepsherbrooke.qc.ca
 c
 c
-      subroutine transmita(angz,z_i,z_f,distd,transa,tranaa)
-      real angle,transa,transa1,transa2                                   ! Declaration des variables.
+c      subroutine transmita(angz,z_i,z_f,distd,transa,tranaa)
+
+      real transa                                                         ! Declaration des variables.
       real tranaa                                                         ! vertical transmittance of the complete atmosphere (aerosols)
       real angz
       real z_i,z_f,z1,z2
       real distd
+
+      angz = 3.71
+      z_i = 12
+      z_f = 14
+      distd = 121.2
+      tranaa = 0.9
 
 
       if (z_i.gt.z_f) then
@@ -49,19 +56,20 @@ c
         z1=z_i
         z2=z_f
       endif
-      if (z1.ne.z2) then    
+      if (z1.ne.z2) then
         transa=exp((log(tranaa)/abs(cos(angz)))*(exp(-1.*z1/2000.)-
      +  exp(-1.*z2/2000.)))
       else
-        transa=exp((log(tranaa))*exp(-1.*z1/2000.)*distd)  
+        transa=exp((log(tranaa))*exp(-1.*z1/2000.)*distd)
       endif
          if (transa.eq.0.) then
-            print*,'ERREUR transa - no transmission',z_i,z_f,airm
-     +      ,angz
+            print*,'ERREUR transa - no transmission',z_i,z_f,angz
          endif
-         if (transa.gt.1.) then 
-            print*,'ERREUR avec transa',transa,z_i,z_f,airm,angz
+         if (transa.gt.1.) then
+            print*,'ERREUR avec transa',transa,z_i,z_f,angz
             stop
          endif
-      return
+c      return
+
+      print*, transa
       end

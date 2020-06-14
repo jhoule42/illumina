@@ -1,4 +1,4 @@
-""=======================================================================
+"""=======================================================================
  Routine transmita (Andre Morin, Alex Neron, Etienne Rousseau 2004)
  Determine la transmittance des aerosols sur un parcours entre les
  cellules (x_i,y_i,z_i) et (x_f,y_f,z_f)

@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
-** Fonctionnel --> comparer a .f
+** Fonctionnel
 ======================================================================="""
 
 from math import atan, pi
@@ -34,7 +34,7 @@ def angleazimutal(x1, y1, x2, y2):
     else:
         if (x2 - x1 > 0.):
             if (y2 - y1 < 0.):
-                angazi = 2.* (pi-angazi)
+                angazi = 2.*pi-angazi
 
         elif (x2 - x1 < 0.):
             if (y2 - y1 < 0.):
@@ -50,7 +50,8 @@ def angleazimutal(x1, y1, x2, y2):
 
         if ((angazi < 0.) or (angazi > 2.*pi)):  # doit etre entre 0 et 2pi
             print("'ERREUR angazi = ", angazi, x1, y2, x2, y2)
+            raise ValueError("ERREUR angazi")
 
     return angazi
 
-print(angleazimutal(10, 12, 2, 1))
+print(angleazimutal(12, 32, 19, 17))

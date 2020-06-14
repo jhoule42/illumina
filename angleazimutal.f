@@ -5,9 +5,9 @@ c
 c  Determine l'angle azimutal entre les points (x1,y1,z1) et (x2,y2,z2)
 c  Retourne l'angle anglezen en radians
 c
-c  pour utilisation avec Illumina 
+c  pour utilisation avec Illumina
 c-----------------------------------------------------------------------
-c   
+c
 c    Copyright (C) 2010  Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -26,21 +26,26 @@ c
 c    Contact: martin.aube@cegepsherbrooke.qc.ca
 c
 c
-      subroutine angleazimutal(x1,y1,x2,y2,angazi) 
+c      subroutine angleazimutal(x1,y1,x2,y2,angazi)
       real x1,y1,x2,y2
-      real pi,angazi                                                   
-      parameter (pi=3.1415926)   
+      real pi,angazi
+      parameter (pi=3.141592654)
+      
+      x1 = 12
+      y1 = 32
+      x2 = 19
+      y2 = 17
       if (x2-x1.ne.0.) angazi=abs(atan((y2-y1)/(x2-x1)))
       if (((x2-x1).eq.0.).and.((y2-y1).eq.0.)) then
          angazi=0.
       else
         if (x2-x1.gt.0.) then
          if (y2-y1.lt.0.) then
-           angazi=2.*pi-angazi 
-         endif 
+           angazi=2.*pi-angazi
+         endif
         elseif (x2-x1.lt.0.) then
          if (y2-y1.lt.0.) then
-           angazi=angazi+pi 
+           angazi=angazi+pi
          else
            angazi=pi-angazi
          endif
@@ -57,5 +62,6 @@ c          print*,'ERREUR cant compute angle between identical points!'
 c          stop
 c        endif
       endif
-      return
-        end 
+c      return
+      print*, angazi
+        end

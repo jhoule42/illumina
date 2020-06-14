@@ -5,12 +5,12 @@ c Routine anglesolide
 c
 c Calcule l'angle solide couvert par la cellule (x_c,y_c,z_c) vue de la
 c cellule (x_n,y_n,z_n)
-c 
+c
 c Retourne l'angle solide omega
 c
 c pour utilisation avec Illumina
 c-----------------------------------------------------------------------
-c   
+c
 c    Copyright (C) 2009  Martin Aube
 c
 c    This program is free software: you can redistribute it and/or modify
@@ -29,12 +29,27 @@ c
 c    Contact: martin.aube@cegepsherbrooke.qc.ca
 c
 c
-      subroutine anglesolide(omega,r1x,r1y,r1z,                           ! Debut de la routine sterad.
-     +             r2x,r2y,r2z,r3x,r3y,r3z,r4x,r4y,r4z)
+c      subroutine anglesolide(omega,r1x,r1y,r1z,                           ! Debut de la routine sterad.
+c     +             r2x,r2y,r2z,r3x,r3y,r3z,r4x,r4y,r4z)
+
       real*8 r1x,r1y,                                                     ! Variables utilisees pour le calcul d'omega.
      +   r1z,r2x,r2y,r2z,r3x,r3y,r3z,r4x,r4y,r4z,r1,r2,r3,r4,tet12,
      +   tet23,tet13,tet34,tet24,a,b,c,s,a123,a234,arg
        real omega
+
+      r1x = 22
+      r1y = 54
+      r1z = 12
+      r2x = 76
+      r2y = 23
+      r2z = 54
+      r3x = 76
+      r3y = 8
+      r3z = 12
+      r4x = 54
+      r4y = 12
+      r4z = 92
+
       r1=dsqrt(r1x**2.+r1y**2.+r1z**2.)                                   ! Calcul de la norme du vecteur #1.
       r2=dsqrt(r2x**2.+r2y**2.+r2z**2.)                                   ! Calcul de la norme du vecteur #2.
       r3=dsqrt(r3x**2.+r3y**2.+r3z**2.)                                   ! Calcul de la norme du vecteur #3.
@@ -84,38 +99,40 @@ c
       a=tet23
       b=tet13
       c=tet12
-      s=(a+b+c)/2.   
-      if ((dtan(s/2.)*dtan((s-a)/2.)*dtan((s-b)/2.)*       
-     +   dtan((s-c)/2.)).lt.0.) then 
+      s=(a+b+c)/2.
+      if ((dtan(s/2.)*dtan((s-a)/2.)*dtan((s-b)/2.)*
+     +   dtan((s-c)/2.)).lt.0.) then
          a123=0.
       else
       a123=4.*datan(dsqrt(dtan(s/2.)*dtan((s-a)/2.)*dtan((s-b)/2.)*       ! Calcul de l'aire du triangle spherique borne par les vecteurs 1,2 et 3.
-     +   dtan((s-c)/2.)))      
+     +   dtan((s-c)/2.)))
       endif
-c         alp=2.*atan(sqrt(sin(s-b)*sin(s-c)/(sin(s)*sin(s-a))))          ! Autre methode pour calculer l'angle solide non utilisee.     
+c         alp=2.*atan(sqrt(sin(s-b)*sin(s-c)/(sin(s)*sin(s-a))))          ! Autre methode pour calculer l'angle solide non utilisee.
 c         bet=asin(sin(b)*sin(alp)/sin(a))                                ! Autre methode pour calculer l'angle solide non utilisee.
-c         gam=asin(sin(c)*sin(alp)/sin(a))                                ! Autre methode pour calculer l'angle solide non utilisee. 
-c         a123=alp+bet+gam-pi                                             ! Autre methode pour calculer l'angle solide non utilisee. 
+c         gam=asin(sin(c)*sin(alp)/sin(a))                                ! Autre methode pour calculer l'angle solide non utilisee.
+c         a123=alp+bet+gam-pi                                             ! Autre methode pour calculer l'angle solide non utilisee.
 
-      a=tet23                                                        
+      a=tet23
       b=tet34
       c=tet24
       s=(a+b+c)/2.
-      
-      
-      if ((dtan(s/2.)*dtan((s-a)/2.)*dtan((s-b)/2.)*       
-     +   dtan((s-c)/2.)).lt.0.) then 
+
+
+      if ((dtan(s/2.)*dtan((s-a)/2.)*dtan((s-b)/2.)*
+     +   dtan((s-c)/2.)).lt.0.) then
          a234=0.
       else
        a234=4.*datan(dsqrt(dtan(s/2.)*dtan((s-a)/2.)*dtan((s-b)/2.)*      ! Calcul de l'aire du triangle spherique borne par les vecteurs 2,3 et 4.
-     +   dtan((s-c)/2.)))  
-     
+     +   dtan((s-c)/2.)))
+
       endif
 c         alp=2.*atan(sqrt(sin(s-b)*sin(s-c)/(sin(s)*sin(s-a))))          ! Autre methode pour calculer l'angle solide non utilisee.
 c         bet=asin(sin(b)*sin(alp)/sin(a))                                ! Autre methode pour calculer l'angle solide non utilisee.
 c         gam=asin(sin(c)*sin(alp)/sin(a))                                ! Autre methode pour calculer l'angle solide non utilisee.
 c         a234=alp+bet+gam-pi                                             ! Autre methode pour calculer l'angle solide non utilisee.
       omega=real(a123+a234)                                               ! L'angle solide est la somme des aires des deux triangles spheriques.
-      
-      return                                                              ! Retour au programme.
+
+c      return
+
+      print*, omega                                                             ! Retour au programme.
       end                                                                 ! Fin de la routine sterad.

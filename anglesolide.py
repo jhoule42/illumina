@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
 =======================================================================
-Statut : Fonctionnel --> comparer a .f + explications de Martin
+Statut : Fonctionnel
 ======================================================================="""
 
 from math import sqrt, acos, tan
@@ -93,12 +93,12 @@ def anglesolide(r1x, r1y, r1z, r2x, r2y, r2z, r3x, r3y, r3z, r4x, r4y, r4z):
     c = tet12
     s = (a+b+c)/2.
 
-    if ((math.tan(s/2.) * math.tan((s-a)/2.) * math.tan((s-b)/2.) * math.tan((s-c)/2.)) < 0.):
+    if ((tan(s/2.) * tan((s-a)/2.) * tan((s-b)/2.) * tan((s-c)/2.)) < 0.):
         a123 = 0.
 
     else:
         # Calcul de l'aire du triangle spherique borne par les vecteurs 1,2 et 3.
-        a123 = 4.* math.atan(math.sqrt(math.tan(s/2.)*math.tan((s-a)/2.)*math.tan((s-b)/2.)*  math.tan((s-c)/2.)))
+        a123 = 4.* atan(sqrt(tan(s/2.)*tan((s-a)/2.)*tan((s-b)/2.)* tan((s-c)/2.)))
 
 # ----------------------------------------------------------------------------------------------------------------------------------
 #         alp=2.*atan(sqrt(sin(s-b)*sin(s-c)/(sin(s)*sin(s-a))))           Autre methode pour calculer l'angle solide non utilisee.
@@ -129,5 +129,4 @@ def anglesolide(r1x, r1y, r1z, r2x, r2y, r2z, r3x, r3y, r3z, r4x, r4y, r4z):
 
     return omega
 
-
-print(anglesolide)
+print(anglesolide(22, 54, 12, 76, 23, 54, 76, 8, 12, 54, 12, 92))

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Contact: martin.aube@cegepsherbrooke.qc.ca
 -----------------------------------------------------------------------
-# Statut : Comparer avec .f
+# Statut : Fonctionel
 -----------------------------------------------------------------------"""
 # coding=utf-8
 

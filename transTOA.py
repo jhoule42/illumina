@@ -26,10 +26,10 @@ def transtoa(lambm, taua, pressi):
     m = (pressi/101.3)  # masse d'air
 
     #  transmittance tirée de Kneizys et al. (1980)
-    tranam = exp(-1. * m/(((lambm/1000.)**4.) * (115.6406-(lambm/1000.)**2.)))  # molecules
-    tranaa=exp(-1.*taua)  # aerosols
+    tranam = exp(-1. * m/(((lambm/1000.)**4.) * (115.6406-(1.335/((lambm/1000.)**2.)))))  # molecules
+    tranaa = exp(-1.*taua)  # aerosols
 
     return tranam, tranaa
 
 
-# print(transtoa(100, 32, 101.3))
+print(transtoa(500, 32, 101.3))

@@ -24,73 +24,45 @@ Statut:  demander explications Martin
 import numpy as np
 from math import sqrt, pi
 
-def zone_diffusion(x1, y1, z1, x2, y2, z2, effet, alts, cloudbase, n2nd, siz):       # erreur dstep pas utilisé + vérifier ncell
+def zone_diffusion(effet, siz):       # erreur dstep pas utilisé + vérifier ncell
 # car inintialisé à zéro
 
     zondif = np.zeros((3000000, 3))     # pk une matrice de cette grandeur ?
 
     neffet = round(effet/siz)   # arrondir à combien ?
-    dmin = sqrt((x1-x2)**2.+(y1-y2)**2.+(z1-z2)**2.)
-
-#    find an approximate value to stepdi
-#    stepdi = 90000000
-
-    stepdi=round((dmin+effet)* pi/siz) * neffet/n2nd*neffet/2
-
-    if (stepdi == 0):
-        stepdi = 1
-
-    step = round(stepdi**(1./3.))   # pourquoi stepdi real ?
-    if (step <= 0):
-        step=1
+    dmin = effet
+    stepdi = 1
 
     # limits of the calculations loops
-    x_1 = round(x1/siz)
-    y_1 = round(y1/siz)
-    x_2 = round(x2/siz)
-    y_2 = round(y2/siz)
-    z_2 = round(z2/siz)+1
-
-    if (x_1 < x_2):
-        imin = x_1 - neffet
-        imax = x_2 + neffet
-    else:
-        imin = x_2 - neffet
-        imax = x_1 + neffet
-
-    if (y_1 < y_2):
-        jmin = y_1 - neffet
-        jmax = y_2 + neffet
-    else:
-        jmi = y_2 - neffet
-        jmax = y_1 + neffet
-
-    kmax=z_2+neffet
-    if (z2 > cloudbase):            # que représente cloudbase(format) ?
-        kmax = round(cloudbase/siz)
-
-    ncell = 0       # 10 dans le .f?
+    imin = -neffet
+    imax = neffet
+    jmin = -neffet
+    jmax = neffet
+    kmin = -neffet
+    kmax = neffet
+    ncell = 0   # 10 dans le .f?
     keep = 0
 
 
-    for i in range(imin, imax, step):
-        for j in range(jmin, jmax, step):   # pk ERREUR?
-            for k in range(1, kmax, step):
-                x0 = i*siz
-                y0 = j*six      # pourquoi écrire real? --> redéfinition des int ?
+    for i in range(imin, imax):
+        x0 = i*siz
+        for j in range(jmin, jmax):   # pk ERREUR?
+            y0 = j*siz
+            for k in range(1, kmax):
                 z0 = k*siz
-                d1 = sqrt((x1-x0)**2.+(y1-y0)**2.+(z1-z0)**2.)
-                d2 = sqrt((x2-x0)**2.+(y2-y0)**2.+(z2-z0)**2.)
-                d = d1+d2
 
-                if ((z0 > alts) and (z0 < 35000.)):
-                    if (d <(dmin+2. *effet)):
-                        ncell += 1
-                        zondif[ncell,1] = x0
-                        zondif[ncell,2] = y0
-                        zondif[ncell,3] = z0
-    stepdi=step**3
+                d = sqrt((x0)**2.+(y0)**2.+(z0)**2.)
 
-    return stepdi   # retourner juste stepdi?
+                if (d <= dmin):
+                    keep += 1
+                    if (keep == stepdi):
 
-print(zone_diffusion(2, 3, 1, 3, 4,5, 0.3, 3, 2, 1, 2))
+                        keep = 0
+                        ncell = ncell+1
+                        zondif[ncell,0] = x0
+                        zondif[ncell,1] = y0
+                        zondif[ncell,2] = z0
+
+    return stepdi, zondif   # retourner juste stepdi?
+
+print(zone_diffusion(404, 32))

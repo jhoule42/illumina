@@ -81,11 +81,11 @@ from pytools import load_bin
 #     Variables declaration
 # ======================================================================
 
-witdh = 512                                                  # Matrix dimension in Length/width and height
+witdh = 512                                          # Matrix dimension in Length/width and height
 nzon = 256
 pix4 = 4.*pi     # pourquoi?
-verbose = 1                                                  # Very little printout=0, Many printout = 1, even more=2
-diamobj = 1.                                                 # Dumb value for diameter of the objective instrument of the observer.
+verbose = 1                                          # Very little printout=0, Many printout = 1, even more=2
+diamobj = 1.                                         # Dumb value for diameter of the objective instrument of the observer.
 volu = 0.
 zero = 0.
 un = 1.
@@ -93,6 +93,17 @@ ff = 0.
 dstep = 1
 ncible = 1024
 stepdi = 1
+verbose=1                                            # Very little printout=0, Many printout = 1, even more=2
+diamobj=1.                                           # A dummy value for the diameter of the objective of the instrument used by the observer.
+volu=0.
+zero=0.
+un=1.
+ff=0.
+step=1
+ncible=1024
+stepdi=1
+cloudslope=-0.013
+cloudfrac=100.
 
 
 """character*72 mnaf                                                   ! Terrain elevation file
@@ -137,29 +148,42 @@ flcld = np.zeros((width,width))                               # Flux crossing a 
 if (verbose >= 1):
     print('Starting ILLUMINA computations...')
 
-""" Il me semble que verbose respecte toujours
- cette condition si on le définit à 1 ?    """
 
 # Reading of the inputs files (illumina.in)
 
 print("Reading illumina.in input file")
-f =  open("illumina.in", "r")
-for line in f:                   # read a file line-by-line
-    print(line, end = '')
+print("\n-------------------------------------------")
+
+valeurs = []
+with open("illumina.in") as f:
+    for line in f:
+
+        line = line.split(" ", 3)
+        valeurs.append(line)
+        #print("{}".format(line))
+
+# Extraire les valeurs du fichier texte
+basenm = valeurs[1][0]
+dx, dy = valeurs[2][0], valeurs[2][1]
+diffile = valeurs[3][0]
+sswit = valeurs[5][0]  #  """ Verifier c'est quoi les 2 valeurs """
+lmbda = valeurs[7][0]
+srefl = valeurs[8][0]
+pressi = valeurs[9][0]
+taus, alpha = valeurs[10][0], valeurs[10][1]
+ntype = valeurs[11][0]
+x_obs, y_obs, z_o = valeurs[14][0], valeurs[14][1], valeurs[14][2]      #"""V/rifier fuck de valeurs"""
+angvis, azim = valeurs[16][0], valeurs[16][1]
+reflsiz = valeurs[20][0]
+cloudt, cloudbase = valeurs[21][0], valeurs[23][0]
 f.close()
 
-""" Faire un test pour vérifier que c'est fonctionnel
-(si on peut utiliser les valeurs lus)
-Vérifier si on a vrm besoin de close et ce que fait
-read(1,*)"""
-
-
-siz = 2500                 # Resolution of the 2nd scat grid in meter
+dfov = (dfov*pi/180.)/2
+siz=2500                   # Resolution of the 2nd scat grid in meter
 if (ssswit == 0):
     effdif = 0.            # Distance around the source voxel and line of sight voxel (2nd order of scattering)
 else:
     effdif=100000.         # This is apparently the minimum value to get some accuracy
-    n2nd=100000            # Desired number of voxel in the calculation of the 2nd scattering
 
 scal = 19                  # Stepping along the line of sight
 scalo = scal               # Scalo : previous value of scal

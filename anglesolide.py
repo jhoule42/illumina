@@ -21,7 +21,7 @@
 Statut : Fonctionnel
 ======================================================================="""
 
-from math import sqrt, acos, tan
+from math import sqrt, acos, tan, atan
 
 def anglesolide(r1x, r1y, r1z, r2x, r2y, r2z, r3x, r3y, r3z, r4x, r4y, r4z):
 
@@ -129,4 +129,4 @@ def anglesolide(r1x, r1y, r1z, r2x, r2y, r2z, r3x, r3y, r3z, r4x, r4y, r4z):
 
     return omega
 
-print(anglesolide(22, 54, 12, 76, 23, 54, 76, 8, 12, 54, 12, 92))
+#print(anglesolide(22, 54, 12, 76, 23, 54, 76, 8, 12, 54, 12, 92))

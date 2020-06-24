@@ -58,10 +58,10 @@
 # ======================================================================
 #     Import Functions and librairies
 # ======================================================================
-
-from horizon import horizons
+import os
+os.chdir("github/Py-illumina")
+from horizon import horizon
 from transTOA import transtoa
-from twodin import twodin
 from anglezenithal import anglezenithal
 from angleazimutal import angleazimutal
 from transmitm import transmitm
@@ -71,7 +71,6 @@ from diffusion import diffusion
 from cloudreflectance import cloudreflectance
 from anglesolide import anglesolide
 from zone_diffusion import zone_diffusion
-from twodout import twodout
 
 import numpy as np
 from math import sqrt, pi, sin, cos, tan, atan
@@ -81,7 +80,7 @@ from pytools import load_bin
 #     Variables declaration
 # ======================================================================
 
-witdh = 512                                          # Matrix dimension in Length/width and height
+width = 512                                          # Matrix dimension in Length/width and height
 nzon = 256
 pix4 = 4.*pi     # pourquoi?
 verbose = 1                                          # Very little printout=0, Many printout = 1, even more=2
@@ -106,19 +105,19 @@ cloudslope=-0.013
 cloudfrac=100.
 
 
-"""character*72 mnaf                                                   ! Terrain elevation file
-character*72 diffil                                                 ! Aerosol file
-character*72 outfile                                                ! Results file
-character*72 pclf,pclgp                                             ! Files containing contribution and sensitivity maps
-character*72 pclimg,pcwimg
-character*72 basenm                                                 ! Base name of files
-character*72 pafile,lufile,alfile,ohfile,odfile,offile              ! Files related to light sources and obstacles (photometric function of the sources (sr-1), flux (W), height (m), obstacles c                                                               ! height (m), obstacle distance (m), obstacle filling factor (0-1).
-character*3 lampno                                                  ! lamp number string
-"""
+# """character*72 mnaf                                                   ! Terrain elevation file
+# character*72 diffil                                                 ! Aerosol file
+# character*72 outfile                                                ! Results file
+# character*72 pclf,pclgp                                             ! Files containing contribution and sensitivity maps
+# character*72 pclimg,pcwimg
+# character*72 basenm                                                 ! Base name of files
+# character*72 pafile,lufile,alfile,ohfile,odfile,offile              ! Files related to light sources and obstacles (photometric function of the sources (sr-1), flux (W), height (m), obstacles c                                                               ! height (m), obstacle distance (m), obstacle filling factor (0-1).
+# character*3 lampno                                                  ! lamp number string
+# """
 
 
-drefle = np.zeros((witdh, witdh))                             # Mean free path to the ground (meter)
-val2d = np.zeros((witdh, witdh))                              # Temporary input array 2d
+drefle = np.zeros((width, width))                             # Mean free path to the ground (meter)
+val2d = np.zeros((width, width))                              # Temporary input array 2d
 altsol = np.zeros((width,width))                              # Ground elevation (meter)
 lamplu = np.zeros((width,width,nzon))                         # Source fluxes
 lampal = np.zeros((width,width))                              # Height of the light sources relative to the ground (meter)
@@ -129,7 +128,7 @@ fdifan = np.zeros((181))                                      # Aerosol scatteri
 anglea = np.zeros((181))                                      # Aerosol scattering angle (degree)
 inclix = np.zeros((width,width))                              # Tilt of the ground pixel along x (radian)
 incliy = np.zeros((width,width))                              # Tilt of the ground pixel along y (radian)
-zondif = np.ones(3000000,3)                                  # Array for the scattering voxels positions
+zondif = np.ones((3000000,3))                                  # Array for the scattering voxels positions
 obsH = np.zeros((width,width))                               # Averaged height of the sub-grid obstacles
 ofill = np.zeros((width,width))                               # Fill factor giving  probability hit an obstacle when pointing in its direction integer 0-100
 ITT = np.zeros((width,width,nzon))                            # Total intensity per type of lamp
@@ -170,25 +169,24 @@ sswit = valeurs[5][0]  #  """ Verifier c'est quoi les 2 valeurs """
 lmbda = valeurs[7][0]
 srefl = valeurs[8][0]
 pressi = valeurs[9][0]
-taus, alpha = valeurs[10][0], valeurs[10][1]
+taua, alpha = valeurs[10][0], valeurs[10][1]
 ntype = valeurs[11][0]
 x_obs, y_obs, z_o = valeurs[14][0], valeurs[14][1], valeurs[14][2]      #"""V/rifier fuck de valeurs"""
 angvis, azim = valeurs[16][0], valeurs[16][1]
+dfov = valeurs[18][0]
 reflsiz = valeurs[20][0]
 cloudt, cloudbase = valeurs[21][0], valeurs[23][0]
 f.close()
 
-dfov = (dfov*pi/180.)/2
+dfov = (int(float(dfov))*pi/180.)/2
 siz=2500                   # Resolution of the 2nd scat grid in meter
-if (ssswit == 0):
+if (sswit == 0):
     effdif = 0.            # Distance around the source voxel and line of sight voxel (2nd order of scattering)
 else:
-    effdif=100000.         # This is apparently the minimum value to get some accuracy
+    effdif=40000.         # This is apparently the minimum value to get some accuracy
 
 scal = 19                  # Stepping along the line of sight
 scalo = scal               # Scalo : previous value of scal
-
-""" D'où viens 19 et pourquoi faire scalo = scal? """
 
 # -----------------------------------------------------------------------------------
 # Note:                                                                              |
@@ -200,10 +198,8 @@ scalo = scal               # Scalo : previous value of scal
 # that the value of sky brightness near sources will be affected by this choice      |
 # -----------------------------------------------------------------------------------
 
-omemax = 1./((25.)**2.)
+omemax = 1./((10.)**2.)
 if (verbose > 0):
-
-""" Il semble que verbose est tjrs > 0? """
 
     print('2nd scattering grid = ', siz, 'm')
     print('2nd order scattering radius=', effdif,'m')
@@ -213,10 +209,8 @@ if (verbose > 0):
 # Computing the actual AOD at the wavelength lambda
 if (verbose >= 1):
     print('500nm AOD=', taua, '500nm angstrom coeff.=', alpha)
-taua = taua*(lambd/500.)**(-1.*alpha)
+taua = float(taua)*(float(lmbda)/500.)**(-1.*float(alpha))
 
-
-""" Vérifier le nom des variables lus (genre pour lambda) ? """
 
 
 # Determine the Length of basenm

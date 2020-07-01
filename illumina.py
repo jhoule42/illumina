@@ -389,7 +389,9 @@ with open(outfile, "w") as f:
 
 
     # Reading lamp heights
-    load_bin(alfile)          "  call twodin(nbx,nby,alfile,val2d)   "
+
+    # Mettre dans une variable ???
+    load_bin(alfile)         # "  call twodin(nbx,nby,alfile,val2d)   "
 
 
 
@@ -398,13 +400,17 @@ with open(outfile, "w") as f:
             lampal[i,j] = val2d[i,j]          # Filling of the array for the lamps type
 
     # Reading subgrid obstacles average height
-    load_bin("ohfile")      """    call twodin(nbx,nby,ohfile,val2d)      """
+    # Mettre dans une variable ???
+
+    load_bin(ohfile)        #"    call twodin(nbx,nby,ohfile,val2d)      "
     for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
         for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
             obsH[i,j] = val2d[i,j]            # Filling of the array
 
     # Reading subgrid obstacles average distance
-    load_bin("odfile")      """    call twodin(nbx,nby,odfile,val2d)    """
+    # Mettre dans une variable ???
+
+    load_bin(odfile)      #"    call twodin(nbx,nby,odfile,val2d)    "
     for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
         for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
             if (drefle[i,j] == 0.):           # When outside a zone, block to the size of the cell (typically 1km)
@@ -415,13 +421,18 @@ with open(outfile, "w") as f:
 
 
     # Reading subgrid obstacles filling factor
-    load_bin("offile")          """        call twodin(nbx,nby,offile,val2d)    """
+    # Mettre dans une variable ???
+
+    load_bin(offile)          """        call twodin(nbx,nby,offile,val2d)    """
     for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
         for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
             ofill[i,j] = val2d[i,j]           # Filling of the array 0-1
 
     # Reading viirs flag
-    load_bin("vifile")       # call twodin(nbx,nby,offile,val2d)
+
+    # Mettre dans une variable ???
+
+    load_bin(vifile)       # call twodin(nbx,nby,offile,val2d)
 
     for i in range(1, nbx+1):                # beginning of the loop over all cells along x.
         for j in range(1, nby+1):            # beginning of the loop over all cells along y.
@@ -470,6 +481,11 @@ with open(outfile, "w") as f:
               lufile=basenm(1:lenbase)//'_lumlp_'//lampno//'.bin'             ! setting the file name of the luminosite of the cases.
     """
 
+    # lampno --> lamp number string
+    pafile = basenm + "_fctem_" + lampno + ".dat"
+    lufile = basenm + "_lumlp_" + lampno + ".bin"
+
+
     # Reading photometry files
     valeurs3 = []
     with open(pafile) as f:                          # Opening file pa#.dat, angular photometry.
@@ -490,7 +506,8 @@ with open(outfile, "w") as f:
 
 
     # Reading luminosity files
-    load_bin("lufile")      """   call twodin(nbx,nby,lufile,val2d)    """
+    load_bin(lufile)      #"""   call twodin(nbx,nby,lufile,val2d)    """
+    
     for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
         for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
             if (val2d[i,j] < 0):              # Searching of negative fluxes

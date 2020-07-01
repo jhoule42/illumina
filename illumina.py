@@ -1,5 +1,4 @@
-
-"""                         *                          *                                            *     *
+"""                        *                          *                                            *     *
   IIIIII    lLLLL    *    lLLLL       UUU        UUU    MMMMM      MMMMM    IIIIII     NNNN     NN          AAAA
    IIII     LLLL          LLLL   *    UUU        UUU    MMMMMMM  MMMMMMM     IIII   *  NNNNN    NN        AAAaaAAA
    IIII     LLLL          LLLL        UUU *      UUU    MMM MMMMMMMM MMM     IIII      NNNNNN   NN       AAA    AAA
@@ -7,6 +6,7 @@
    IIII     LLLl          LLLl        UUUu      uUUU    MMM          MMM     IIII      NNN   NNNNN    AAAa        aAAA
    IIII    LLLLLLLLLL    LLLLLLLLLL    UUUUUuuUUUUU     MMM     *    MMM     IIII      NNN    NNNN   aAAA    *     AAAa
   IIIIII   LLLLLLLLLLL   LLLLLLLLLLL     UUUUUUUU      mMMMm        mMMMm   IIIIII    nNNNn    NNNn  aAAA          AAAa
+
  **********************************************************************************************************************
  ** Illumina VERSION 3 - in Python 3.6.3                                                                             **
  ** Programmers in decreasing order of contribution  :                                                               **
@@ -104,16 +104,17 @@ stepdi=1
 cloudslope=-0.013
 cloudfrac=100.
 
-
-# """character*72 mnaf                                                   ! Terrain elevation file
-# character*72 diffil                                                 ! Aerosol file
-# character*72 outfile                                                ! Results file
-# character*72 pclf,pclgp                                             ! Files containing contribution and sensitivity maps
-# character*72 pclimg,pcwimg
-# character*72 basenm                                                 ! Base name of files
-# character*72 pafile,lufile,alfile,ohfile,odfile,offile              ! Files related to light sources and obstacles (photometric function of the sources (sr-1), flux (W), height (m), obstacles c                                                               ! height (m), obstacle distance (m), obstacle filling factor (0-1).
-# character*3 lampno                                                  ! lamp number string
-# """
+# Probablement pas utile
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# character*72 mnaf                                                   ! Terrain elevation file                                                                                                           |
+# character*72 diffil                                                 ! Aerosol file                                                                                                                     |
+# character*72 outfile                                                ! Results file                                                                                                                     |
+# character*72 pclf,pclgp                                             ! Files containing contribution and sensitivity maps                                                                               |
+# character*72 pclimg,pcwimg                                                                                                                                                                             |
+# character*72 basenm                                                 ! Base name of files                                                                                                               |
+# character*72 pafile,lufile,alfile,ohfile,odfile,offile              ! Files related to light sources and obstacles (photometric function of the sources (sr-1), flux (W), height (m), obstacles c      |                                                        ! height (m), obstacle distance (m), obstacle filling factor (0-1).
+# character*3 lampno                                                  ! lamp number string                                                                                                               |
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 drefle = np.zeros((width, width))                             # Mean free path to the ground (meter)
@@ -162,7 +163,7 @@ with open("illumina.in") as f:
         #print("{}".format(line))
 
 # Extraire les valeurs du fichier texte
-basenm = valeurs[1][0]
+basenm = valeurs[1][0]      # Nom de base pour determiner le nom des autres fichiers
 dx, dy = valeurs[2][0], valeurs[2][1]
 diffil = valeurs[3][0]
 sswit = valeurs[5][0]  #  """ Verifier c'est quoi les 2 valeurs """
@@ -213,15 +214,16 @@ taua = float(taua)*(float(lmbda)/500.)**(-1.*float(alpha))
 
 
 
-# Determine the Length of basenm
+"""lenbase = index(basenm,' ')-1""" # Utile?
 
-"""lenbase = index(basenm,' ')-1
-mnaf = basenm(1:lenbase)//'_topogra.bin'                      # Determine the names of input and output files
-outfile = basenm(1:lenbase)//'.out'
-pclf = basenm(1:lenbase)//'_pcl.txt'
-pclimg = basenm(1:lenbase)//'_pcl.bin'
-pcwimg = basenm(1:lenbase)//'_pcw.bin'
-pclgp = basenm(1:lenbase)//'_pcl.gplot' """
+# Determiner le nom des fichiers selon le basenm
+mnaf = basenm + "_topogra.bin"           # Determine the names of input and output files
+outfile = basenm + ".out"
+pclf = basenm + "_pcl.txt"
+pclimg = basenm + "_pcl.bin"
+pcwimg = basenm + "_pcw.bin"
+pclgp = basenm + "_pcl.gplot"
+
 
 # -------------------------------------------------------------------------
 # Note:                                                                    |
@@ -239,7 +241,7 @@ if (azim >= 360.):
     azim = azim-360.
 
 # Ecrire dans "outfile"
-with open("outfile", "w") as f:
+with open(outfile, "w") as f:
     f.write("ILLUMINA version 2.0.20w24.4\n")
 
     # Check if the observation angle is above horizon
@@ -305,7 +307,7 @@ with open("outfile", "w") as f:
     hh=1.
 
 
-
+# Indentations???
 
 
         if (angzen > zhoriz):                   # The line of sight is not below the horizon => we compute
@@ -377,11 +379,17 @@ with open("outfile", "w") as f:
             odfile=basenm(1:lenbase)//'_obstd.bin'
             alfile=basenm(1:lenbase)//'_altlp.bin'                            # setting the file name of height of the sources lumineuse.
             offile=basenm(1:lenbase)//'_obstf.bin'
-            dtheta=.017453293                                                 # one degree
     """
 
+    ohfile = basenm + "_obsth.bin"
+    odfile = basenm + "_obstd.bin"
+    alfile = basenm + "_altlp.bin"          # Setting the file name of height of the sources lumineuse.
+    offile = basenm + "_obstf.bin"
+    dtheta=.017453293                                                 # one degree
+
+
     # Reading lamp heights
-    load_bin("alfile")          "  call twodin(nbx,nby,alfile,val2d)   "
+    load_bin(alfile)          "  call twodin(nbx,nby,alfile,val2d)   "
 
 
 

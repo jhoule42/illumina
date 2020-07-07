@@ -93,14 +93,7 @@ dstep = 1
 ncible = 1024
 stepdi = 1
 verbose=1                                            # Very little printout=0, Many printout = 1, even more=2
-diamobj=1.                                           # A dummy value for the diameter of the objective of the instrument used by the observer.
-volu=0.
-zero=0.
-un=1.
-ff=0.
 step=1
-ncible=1024
-stepdi=1
 cloudslope=-0.013
 cloudfrac=100.
 
@@ -174,10 +167,11 @@ taua, alpha = valeurs[10][0], valeurs[10][1]
 ntype = valeurs[11][0]
 x_obs, y_obs, z_o = valeurs[14][0], valeurs[14][1], valeurs[14][2]      #"""V/rifier fuck de valeurs"""
 angvis, azim = valeurs[16][0], valeurs[16][1]
-dfov = valeurs[18][0]
+dfov = valeurs[18][0]   # Valeur bizzare
 reflsiz = valeurs[20][0]
 cloudt, cloudbase = valeurs[21][0], valeurs[23][0]
 f.close()
+
 
 dfov = (int(float(dfov))*pi/180.)/2
 siz=2500                   # Resolution of the 2nd scat grid in meter
@@ -213,9 +207,6 @@ if (verbose >= 1):
 taua = float(taua)*(float(lmbda)/500.)**(-1.*float(alpha))
 
 
-
-"""lenbase = index(basenm,' ')-1""" # Utile?
-
 # Determiner le nom des fichiers selon le basenm
 mnaf = basenm + "_topogra.bin"           # Determine the names of input and output files
 outfile = basenm + ".out"
@@ -227,42 +218,36 @@ pclgp = basenm + "_pcl.gplot"
 
 # -------------------------------------------------------------------------
 # Note:                                                                    |
-# conversion of the geographical viewing angles toward the cartesian       |
+# Conversion of the geographical viewing angles toward the cartesian       |
 # angle we assume that the angle in the file illumina.in                   |
 # is consistent with the geographical definition                           |
 # geographical: azim=0 toward north, 90 toward east, 180 toward south, etc |
 # cartesian: azim=0 toward east, 90 toward north, 180 toward west, etc     |
 # -------------------------------------------------------------------------
 
-azim = 90.-azim
+azim = 90.-int(azim)
 if (azim < 0.):
     azim = azim+360.
 if (azim >= 360.):
     azim = azim-360.
 
-# Ecrire dans "outfile"
+# Comment ecrire pas dans le dossier experience?
 with open(outfile, "w") as f:
     f.write("ILLUMINA version 2.0.20w24.4\n")
-
-    # Check if the observation angle is above horizon
-    #angzen = pi/2.-angvis*pi/180.
-    #horizon(x_obs, y_obs, z_o, dx, dy, anga)    # La valeur dans le .f semble etre z_obs (pas definit)
-
     f.write("FILE USED:\n")
-    f.write("mnaf\n")       # REGLER LE PROBLEME VARIABLE
+    f.write(mnaf+"\n")       # REGLER LE PROBLEME VARIABLE
     f.write(diffil+"\n")
     f.write("Wavelength (nm): " + lmbda+'\n')
     f.write("Aerosol optical depth: " + str(taua)+'\n')
     f.write("2nd order scattering radius:" + str(effdif) + "m\n")
     f.write("Observer position (x,y,z) " + x_obs+","+y_obs+","+z_o+"\n")
-    f.write("Elevation angle:" + angvis + "azim angle (clockwise from north)" + azim + '\n')
+    f.write("Elevation angle:" + angvis + " azim angle (clockwise from north)" + str(azim) + '\n')
 
     print("Wavelength (nm): ", lmbda)
-    print("Aerosol optical depth:", taua)
-    print("2nd order scattering radius:",effdif,'m')
-    print("Observer position (x,y,z)",x_obs,y_obs,z_o)
-    print("Elevation angle:",angvis,"/ Azim angle (counterclockwise from east)", azim)
-
+    print("Aerosol optical depth: ", taua)
+    print("2nd order scattering radius: ",effdif,'m')
+    print("Observer position (x,y,z) ",x_obs,y_obs,z_o)
+    print("Elevation angle: ",angvis," /Azim angle (counterclockwise from east) ", azim)
 
 
     if (verbose >= 1):
@@ -307,43 +292,30 @@ with open(outfile, "w") as f:
     hh=1.
 
 
-# Indentations???
-
-
-        if (angzen > zhoriz):                   # The line of sight is not below the horizon => we compute
-            print("PROBLEM! You try to observe below horizon.")
-            print("No calculation will be made")
-
-            f.write("       Sky radiance (W/str/m**2)       ")
-            f.write("               0.0000                  ")
-            #raise ValueError()
-
-    """        write(2,*) '            Sky radiance (W/str/m**2)          '
-            write(2,2001) zero
-            print('            Sky radiance (W/str/m**2)          ')
-            print('                 0.0000')
-            close(2)"""
-
-
-    "Note : Il y semble avoir certaine matrices pas initialisé à zéro (drefle) --> vérifier fonctions"
-
-
     # Determine the 2nd scattering zone
     if sswit != 0:
         zone_diffusion(effdif, zondif, ndiff, stepdi, siz)     # "vérifier les arguments"
         dss = 1.*siz
 
+        ndiff = 50      # Temporaire!!! doit trouver un evrai facon de mettre la valeur
         if verbose > 0:
             print("2nd order scattering grid points = ", ndiff)
             print('2nd order scattering smoothing radius = ',dss,'m')
 
 
+
+# Code executable jusqu'ici !!!
+
+
+
+
     # Determination of the vertical atmospheric transmittance
     # Tranam and tranaa are the top of atmosphere transmittance (molecules and aerosols)
-    transtoa(lambm, taua, pressi, tranam, tranaa)    #   " COMMENT LA VALEUR DES ARGUMENTS EST DÉTERMINÉ ? "
-    load_bin("mnaf")     # Reading of the environment variables + elevation file   "stocker dans une variable ?"
+"""    transtoa(lambm, taua, pressi, tranam, tranaa)    #   " COMMENT LA VALEUR DES ARGUMENTS EST DÉTERMINÉ ? "
+    load_bin("mnaf")     # Reading of the environment variables + elevation file   "stocker dans une variable ?"""
     #"""call twodin(nbx,nby,mnaf,altsol)"""
 
+    # Comment determiner nbx?
     nbx = 50
     nby = 50
 
@@ -374,27 +346,17 @@ with open(outfile, "w") as f:
 
     # Reading of the values of P(theta), height, luminosities and positions
     # of the sources, obstacle height and distance
-    """
-            ohfile=basenm(1:lenbase)//'_obsth.bin'
-            odfile=basenm(1:lenbase)//'_obstd.bin'
-            alfile=basenm(1:lenbase)//'_altlp.bin'                            # setting the file name of height of the sources lumineuse.
-            offile=basenm(1:lenbase)//'_obstf.bin'
-    """
-
     ohfile = basenm + "_obsth.bin"
     odfile = basenm + "_obstd.bin"
     alfile = basenm + "_altlp.bin"          # Setting the file name of height of the sources lumineuse.
     offile = basenm + "_obstf.bin"
-    dtheta=.017453293                                                 # one degree
+    dtheta=.017453293                       # one degree
 
 
     # Reading lamp heights
 
     # Mettre dans une variable ???
     load_bin(alfile)         # "  call twodin(nbx,nby,alfile,val2d)   "
-
-
-
     for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
         for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
             lampal[i,j] = val2d[i,j]          # Filling of the array for the lamps type
@@ -468,7 +430,7 @@ with open(outfile, "w") as f:
     #   SECTIONS DE COMMENTAIRES DANS ILLUMINA.F
     # ---------------------------------------------------------------------------------------------------------------------------------
 
-    for stype in range(1, ntype+1):           # Beginning of the loop 1 for the nzon types of sources.
+    for stype in range(ntype):           # Beginning of the loop 1 for the nzon types of sources.
         imin[stype]=nbx
         jmin[stype]=nby
         imax[stype]=1
@@ -507,7 +469,7 @@ with open(outfile, "w") as f:
 
     # Reading luminosity files
     load_bin(lufile)      #"""   call twodin(nbx,nby,lufile,val2d)    """
-    
+
     for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
         for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
             if (val2d[i,j] < 0):              # Searching of negative fluxes
@@ -521,7 +483,7 @@ with open(outfile, "w") as f:
                 if (imin[stype] < 1):
                     imin[stype] = 1
 
-    """ VÉRIFIER GOTO FONCTIONNEMENT """
+    """ VÉRIFIER GOTO FONCTIONNEMENT (est ce que ca apporte a la ligne du chiffre?) """
     # COMPLÉTER CE BLOC DE LA LIGNE 682 À 719
 
 
@@ -561,7 +523,7 @@ with open(outfile, "w") as f:
     ry_c = (y_obs)*dx-iy*scal/2.
     z_c = z_obs-iz*scal/2.
 
-    for icible in range(1, ncible):                        # Beginning of the loop over the line of sight voxels
+    for icible in range(ncible):                        # Beginning of the loop over the line of sight voxels
         rx_c = rx_c+ix*(scalo/2.+scal/2.)
         ry_c = ry_c+iy*(scalo/2.+scal/2.)
         z_c = z_c+iz*(scalo/2.+scal/2.)
@@ -571,9 +533,11 @@ with open(outfile, "w") as f:
         # Stop the calculation of the viewing line when the increment is lower than 1/stoplim
         # or when hitting a cloud or when z>40km (scattering probability =0 (given precision)
             fcapt=0.
-            for i in range(1,nbx):
-                for j in range(1,nby):
-                    FCA[i,j] = 0.   # Set tout a 0 (pas deja fait ?)
+
+
+
+
+
 
 # --------------------------------------------------------------------------
 # Calculate the solid angle of the line of sight voxel unit voxel           |
@@ -601,9 +565,6 @@ with open(outfile, "w") as f:
             portio = 0.
         else:
             portio = (omefov/omega)
-
-        itotci = 0.          # Initialisation of the contribution of the line of sight at the sensor level
-
 
 
         # Condition line of sight inside the modelling domain
@@ -639,10 +600,7 @@ with open(outfile, "w") as f:
                 if (verbose >= 1):
                     f.write('Turning on lamps', stype)
 
-                itotty = 0.
 
-
-                "Pourquoi faire une boucle pour ca? ON redefinit plein de fois la meme valeur"
                 for x_s in range(imin[stype], imax[stype])           # Beginning of the loop over the column (longitude) of the domain.
                     for y_s in range(jmin[stype], jmax[stype])       # Beginning of the loop over the rows (latitude) of the domain.
                         intdir=0.
@@ -726,7 +684,7 @@ with open(outfile, "w") as f:
 # *********************************************************************************************************
 
                     dirck=0                                           # Initialisation of the verification of the position of the source
-                    if ((rx_s.eq.rx_c).and.(ry_s.eq.ry_c) and (z_s.eq.z_c)): # if the position of the source and the line of sight voxel are the same then ..
+                    if ((rx_s. == rx_c).and.(ry_s.eq.ry_c) and (z_s.eq.z_c)): # if the position of the source and the line of sight voxel are the same then ..
                         dirck=1
                         if (verbose1 >= 1) then
                             print('Source = line of sight')
@@ -941,8 +899,14 @@ with open(outfile, "w") as f:
                                                 naz=362-naz
                                             if (naz == 0):
                                                 naz=1
-                                            P_indir = P_indir+pvalno[naz,stype]*abs(sin(pi*(naz)/180.))/2.
+                                            P_indir += pvalno[naz,stype]*abs(sin(pi*(naz)/180.))/2.
                                             nbang = nbang+1.*abs(sin(pi*(naz)/180.))/2.
+
+
+                                        naz=anglez+na
+
+                                        P_indir = np.sum(naz *-1 if naz == 0 [pvalno[naz,stype]*abs(sin(pi*(naz)/180.))/2.] for na in range(-round(ouvang), round(ouvang)))
+
 
                                         P_indir = P_indir/nbang
 
@@ -982,7 +946,7 @@ with open(outfile, "w") as f:
                             if (dho > drefle(x_sr,y_sr)):      # Light path to observer larger than the mean free path -> subgrid obstacles
                                 angmin=pi/2.-atan((altsol(x_sr,y_sr)+obsH(x_sr,y_sr)-z_sr)/drefle(x_sr,y_sr))
 
-                                if (dzen.lt.angmin):             # Condition sub-grid obstacles direct.
+                                if (dzen < angmin):             # Condition sub-grid obstacles direct.
                                     ff=0.
                                 else:
                                     ff=ofill(x_sr,y_sr)
@@ -1429,7 +1393,7 @@ with open(outfile, "w") as f:
 
 
 # End of the computation of the intensity of one source type
-        itotci = itotci+itotty                          # Sum of the intensities all source all type to a line of sight element
+        itotci += itotty                          # Sum of the intensities all source all type to a line of sight element
 
         for x_s in range(imin(stype),imax(stype)):
             for y_s in range (jmin(stype),jmax(stype)):
@@ -1523,7 +1487,7 @@ with open(outfile, "w") as f:
     fctcld=fctcld*10**(0.4*(100.-cloudfrac)*cloudslope)               ! correction for the cloud fraction (defined from 0 to 100)
 
     if (prmaps == 1):
-        with open("pclf") as f2:                " Est ce que on cree un nouveau fichier? Sinon ca vient d'ou "
+        with open(pclf) as f2:                " Est ce que on cree un nouveau fichier? Sinon ca vient d'ou "
             for x_s in range(1, nbx+1):
                 for y_s in range(1, nby+1):
                     FTC[x_s,y_s] = FTC[x_s,y_s]/ftocap           # Here FTC becomes the flux fraction of each pixel. The sum of FTC values over all pixels give the total flux

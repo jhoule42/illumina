@@ -373,7 +373,6 @@ lampal = load_bin(alfile)         # "  call twodin(nbx,nby,alfile,val2d)   "
 obsH = load_bin(ohfile)        #"    call twodin(nbx,nby,ohfile,val2d)      "
 
 # Reading subgrid obstacles average distance
-# Mettre dans une variable ???
 
 load_bin(odfile)      #"    call twodin(nbx,nby,odfile,val2d)    "
 for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
@@ -382,21 +381,11 @@ for i in range(1, nbx+1):                 # Beginning of the loop over all cells
             drefle[i,j] = dx
 drefle[drefle==0] = dx
 
-" De ce que je comprend load_bin utilise le fichier pour remplir les matrices"
-
 
 # Reading subgrid obstacles filling factor
-# Mettre dans une variable ???
-
-load_bin(offile)          """        call twodin(nbx,nby,offile,val2d)    """
-for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
-    for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
-        ofill[i,j] = val2d[i,j]           # Filling of the array 0-1
+ofill = load_bin(offile)          #"""        call twodin(nbx,nby,offile,val2d)    """
 
 # Reading viirs flag
-
-# Mettre dans une variable ???
-
 load_bin(vifile)       # call twodin(nbx,nby,offile,val2d)
 
 for i in range(1, nbx+1):                # beginning of the loop over all cells along x.

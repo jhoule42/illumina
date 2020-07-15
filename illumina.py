@@ -149,7 +149,7 @@ print("\n-------------------------------------------")
 
 valeurs = []
 with open("illumina.in") as f:
-    for line in f:
+    for line in f:          "List comprehension"
 
         line = line.split(" ", 3)
         valeurs.append(line)
@@ -250,10 +250,16 @@ with open(outfile, "w") as f:
     print("Elevation angle: ",angvis," /Azim angle (counterclockwise from east) ", azim)
 
 
+"  Fermez le fichier et append quand l'ouvre "
+
+
     if (verbose >= 1):
         print('Initializing variables...')
     if (cloudt == 0):
         cloudbase = 1000000000.
+
+
+"vrm besoin?"
 
     prmaps=1
     iun=0
@@ -291,7 +297,7 @@ with open(outfile, "w") as f:
     omefov=0.
     hh=1.
 
-
+"fonction mettre dans variables"
     # Determine the 2nd scattering zone
     if sswit != 0:
         zone_diffusion(effdif, zondif, ndiff, stepdi, siz)     # "vérifier les arguments"
@@ -312,7 +318,7 @@ with open(outfile, "w") as f:
     # Determination of the vertical atmospheric transmittance
     # Tranam and tranaa are the top of atmosphere transmittance (molecules and aerosols)
 """    transtoa(lambm, taua, pressi, tranam, tranaa)    #   " COMMENT LA VALEUR DES ARGUMENTS EST DÉTERMINÉ ? "
-    load_bin("mnaf")     # Reading of the environment variables + elevation file   "stocker dans une variable ?"""
+     altsol = load_bin(mnaf)     # Reading of the environment variables + elevation file   "stocker dans une variable ?"""
     #"""call twodin(nbx,nby,mnaf,altsol)"""
 
     # Comment determiner nbx?
@@ -322,7 +328,15 @@ with open(outfile, "w") as f:
     """ ERREUR! On fait des operations sur des matrices rempli de zeros???"""
 
     """# Computation of the tilt of the cases along x and along y
-    for i in range(1, nbx+1):                           # Beginning of the loop over the column (longitude) of the domain.
+
+    inclix[:,1:-1] = np.atan((altsol[:,2:]-altsol[:,:-2])/(2.1*dx))
+    inclix[:,0] = np.atan((altsol[:,1]-altsol[:,0])/dx)
+    inclix[:,-1] = np.atan((altsol[:,-1]-altsol[:,-2])/dx)
+    incliy[1:-1] = np.atan((altsol[2:]-altsol[:-2])/(2.1*dy))
+    incliy[0] = np.atan((altsol[1]-altsol[0])/dy)
+    incliy[-1] = np.atan((altsol[-1]-altsol[-2])/dy)
+
+    for i in range(nbx):                           # Beginning of the loop over the column (longitude) of the domain.
         for j in range(1, nby+1):
             if (i == 1):                                # Specific case close to the border of the domain (vertical side left).
                 inclix[i,j] = atan(altsol[i+1, j]-altsol[i,j]/dx)  # Computation of the tilt along x of the surface.
@@ -350,24 +364,13 @@ with open(outfile, "w") as f:
     odfile = basenm + "_obstd.bin"
     alfile = basenm + "_altlp.bin"          # Setting the file name of height of the sources lumineuse.
     offile = basenm + "_obstf.bin"
-    dtheta=.017453293                       # one degree
+    dtheta = np.pi/180                      # one degree
 
 
     # Reading lamp heights
 
-    # Mettre dans une variable ???
-    load_bin(alfile)         # "  call twodin(nbx,nby,alfile,val2d)   "
-    for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
-        for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
-            lampal[i,j] = val2d[i,j]          # Filling of the array for the lamps type
-
-    # Reading subgrid obstacles average height
-    # Mettre dans une variable ???
-
-    load_bin(ohfile)        #"    call twodin(nbx,nby,ohfile,val2d)      "
-    for i in range(1, nbx+1):                 # Beginning of the loop over all cells along x.
-        for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
-            obsH[i,j] = val2d[i,j]            # Filling of the array
+    lampal = load_bin(alfile)         # "  call twodin(nbx,nby,alfile,val2d)   "
+    obsH = load_bin(ohfile)        #"    call twodin(nbx,nby,ohfile,val2d)      "
 
     # Reading subgrid obstacles average distance
     # Mettre dans une variable ???
@@ -377,7 +380,7 @@ with open(outfile, "w") as f:
         for j in range(1, nby+1):             # Beginning of the loop over all cells along y.
             if (drefle[i,j] == 0.):           # When outside a zone, block to the size of the cell (typically 1km)
                 drefle[i,j] = dx
-
+    drefle[drefle==0] = dx
 
     " De ce que je comprend load_bin utilise le fichier pour remplir les matrices"
 
@@ -475,6 +478,7 @@ with open(outfile, "w") as f:
             if (val2d[i,j] < 0):              # Searching of negative fluxes
                 raise ValueError("Negative lamp flux!, stopping execution")
 
+# j en premier avant i
     for i in range(1, nbx+1):
         for j in range(1, nby+1):             # Searching of the smallest rectangle containing the zone
             if (val2d[i,j] != 0):             # of non-null luminosity to speedup the calculation
@@ -900,7 +904,7 @@ with open(outfile, "w") as f:
                                             if (naz == 0):
                                                 naz=1
                                             P_indir += pvalno[naz,stype]*abs(sin(pi*(naz)/180.))/2.
-                                            nbang = nbang+1.*abs(sin(pi*(naz)/180.))/2.
+                                            nbang += 1.*abs(sin(pi*(naz)/180.))/2.
 
 
                                         naz=anglez+na
@@ -1004,7 +1008,7 @@ with open(outfile, "w") as f:
                                 if (jd < 1):
                                     jd=1
                                 if (z_dif-siz/2. <= altsol[id,jd] or (z_dif > 35000.) or (z_dif > cloudbase)):   # Beginning diffusing cell underground
-                                    ndi=ndi+1
+                                    ndi += 1
 
                                 else:
                                     ds1=sqrt((rx_sr-rx_dif)**2.+(ry_sr-ry_dif)**2.+(z_sr-z_dif)**2.)
@@ -1154,7 +1158,7 @@ with open(outfile, "w") as f:
     # Computation of the Solid angle of the scattering unit voxel seen from the source
                                                     omega=1./distd**2.
                                                     if (omega > omemax):
-                                                            omega=0.
+                                                        omega=0.
                                                     anglez=round(180.*angzen/pi)+1
                                                     P_dif1=pvalno[anglez,stype]
 
@@ -1538,7 +1542,7 @@ with open(outfile, "w") as f:
 
         """write(2,2001) (ftocap+fctcld)/omefov/(pi*(diamobj/2.)**2.)  """
 #close(2)
-        """2001 format('                   ',E10.3E2)"""
+
 
 
 # ***********************************************************************************************************************

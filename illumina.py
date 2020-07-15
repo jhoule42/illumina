@@ -195,17 +195,15 @@ scalo = scal               # Scalo : previous value of scal
 
 omemax = 1./((10.)**2.)
 if (verbose > 0):
-
     print('2nd scattering grid = ', siz, 'm')
     print('2nd order scattering radius=', effdif,'m')
     print('Pixel size = ', dx,' x ', dy)
     print('Maximum radius for reflexion = ', reflsiz)
+    print('500nm AOD=', taua, '500nm angstrom coeff.=', alpha)
+
 
 # Computing the actual AOD at the wavelength lambda
-if (verbose >= 1):
-    print('500nm AOD=', taua, '500nm angstrom coeff.=', alpha)
 taua = float(taua)*(float(lmbda)/500.)**(-1.*float(alpha))
-
 
 # Determiner le nom des fichiers selon le basenm
 mnaf = basenm + "_topogra.bin"           # Determine the names of input and output files
@@ -249,8 +247,6 @@ with open(outfile, "w") as f:
     print("Observer position (x,y,z) ",x_obs,y_obs,z_o)
     print("Elevation angle: ",angvis," /Azim angle (counterclockwise from east) ", azim)
 f.close()
-
-"  Fermez le fichier et append quand l'ouvre "
 
 
 if (verbose >= 1):
@@ -327,7 +323,7 @@ nby = 50
 
 """ ERREUR! On fait des operations sur des matrices rempli de zeros???"""
 
-"""# Computation of the tilt of the cases along x and along y
+# Computation of the tilt of the cases along x and along y
 
 inclix[:,1:-1] = np.atan((altsol[:,2:]-altsol[:,:-2])/(2.1*dx))
 inclix[:,0] = np.atan((altsol[:,1]-altsol[:,0])/dx)
@@ -335,27 +331,6 @@ inclix[:,-1] = np.atan((altsol[:,-1]-altsol[:,-2])/dx)
 incliy[1:-1] = np.atan((altsol[2:]-altsol[:-2])/(2.1*dy))
 incliy[0] = np.atan((altsol[1]-altsol[0])/dy)
 incliy[-1] = np.atan((altsol[-1]-altsol[-2])/dy)
-
-for i in range(nbx):                           # Beginning of the loop over the column (longitude) of the domain.
-    for j in range(1, nby+1):
-        if (i == 1):                                # Specific case close to the border of the domain (vertical side left).
-            inclix[i,j] = atan(altsol[i+1, j]-altsol[i,j]/dx)  # Computation of the tilt along x of the surface.
-
-        elif (i == nbx+1):                          # Specific case close to the border of the domain (vertical side right).
-            inclix[i,j] = atan((altsol[i-1, j]-altsol[i,j])/dx)          # Computation of the tilt along x of the surface.
-
-        else:
-            inclix[i,j] = atan((altsol[i+1, j]-altsol[i-1,j])/(2.1*dx))  # Computation of the tilt along x of the surface.
-
-        if (j == 1):                                # Specific case close to the border of the domain (horizontal side down).
-            incliy[i,j] = atan((altsol[i, j+1]-altsol[i,j])/dy)          # Computation of the tilt along y of the surface.
-
-        elif (j == nby+1):                          # Specific case close to the border of the domain (horizontal side up).
-            incliy[i,j] = atan((altsol[i, j-1]-altsol[i,j])/dy)         # Computation of the tilt along y of the surface.
-
-        else:
-            incliy[i,j] = atan((altsol[i, j+1]-altsol[i,j-1])/(2.1*dy))  # Computation of the tilt along y of the surface
-"""
 
 
 # Reading of the values of P(theta), height, luminosities and positions
@@ -418,6 +393,7 @@ with open(diffil) as f:      # Opening file containing the parameters of scatter
 
 secdif = scatte/extinc             # Rapport (sigmadif/sigmatotal).
 
+
 # ---------------------------------------------------------------------------------------------------------------------------------
 #   SECTIONS DE COMMENTAIRES DANS ILLUMINA.F
 # ---------------------------------------------------------------------------------------------------------------------------------
@@ -430,10 +406,10 @@ for stype in range(ntype):           # Beginning of the loop 1 for the nzon type
     pvalto=0.
 
 
-"""       write(lampno, '(I3.3)' ) stype                                  ! support of nzon different sources (3 digits)
-          pafile=basenm(1:lenbase)//'_fctem_'//lampno//'.dat'             ! setting the file name of angular photometry.
-          lufile=basenm(1:lenbase)//'_lumlp_'//lampno//'.bin'             ! setting the file name of the luminosite of the cases.
-"""
+"""       write(lampno, '(I3.3)' ) stype                                  ! support of nzon different sources (3 digits)   """
+  pafile=basenm(1:lenbase)//'_fctem_'//lampno//'.dat'             # Setting the file name of angular photometry.
+  lufile=basenm(1:lenbase)//'_lumlp_'//lampno//'.bin'             # Setting the file name of the luminosite of the cases.
+
 
 # lampno --> lamp number string
 pafile = basenm + "_fctem_" + lampno + ".dat"
@@ -888,6 +864,10 @@ for icible in range(ncible):                        # Beginning of the loop over
                                         naz=0
                                         nbang=0.
                                         P_indir=0.
+
+
+
+                                        "Utiliser Numpy!!!"
 
                                         for na in range(-round(ouvang), round(ouvang)):
                                             naz=anglez+na
@@ -1536,6 +1516,7 @@ for icible in range(ncible):                        # Beginning of the loop over
             f.write('    Direct radiance from reflexion (W/str/m**2/nm)     ')
             f.write('            Cloud radiance (W/str/m**2/nm)             ')
             f.write('           Diffuse radiance (W/str/m**2/nm)            ')
+        f.close()
 
             """write(2,2001) (ftocap+fctcld)/omefov/(pi*(diamobj/2.)**2.)  """
 #close(2)

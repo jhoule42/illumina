@@ -63,6 +63,6 @@ def zone_diffusion(effet, siz):       # erreur dstep pas utilisé + vérifier nc
                         zondif[ncell,1] = y0
                         zondif[ncell,2] = z0
 
-    return stepdi, zondif   # retourner juste stepdi?
+    return zondif   # retourner juste stepdi?
 
 print(zone_diffusion(404, 32))
